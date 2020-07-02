@@ -5,10 +5,10 @@
 
     <fragment
         android:id="@+id/notesListFragment"
-        android:name="uz.jasurbek.notes.ui.NotesListFragment"
+        android:name="uz.jasurbek.notes.ui.list.NotesListFragment"
         android:label="NotesListFragment" />
     <fragment
         android:id="@+id/notesAddAndEditFragment"
-        android:name="uz.jasurbek.notes.ui.NotesAddAndEditFragment"
+        android:name="uz.jasurbek.notes.ui.operation.NotesAddAndEditFragment"
         android:label="NotesAddAndEditFragment" />
 </navigation>

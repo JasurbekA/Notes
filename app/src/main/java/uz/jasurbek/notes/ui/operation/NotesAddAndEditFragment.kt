@@ -1,4 +1,4 @@
-package uz.jasurbek.notes.ui
+package uz.jasurbek.notes.ui.operation
 
 import android.os.Bundle
 import android.view.LayoutInflater

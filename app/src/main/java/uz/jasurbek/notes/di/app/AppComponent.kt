@@ -6,13 +6,17 @@ import dagger.Component
 import dagger.android.AndroidInjector
 import dagger.android.support.AndroidSupportInjectionModule
 import uz.jasurbek.notes.BaseApplication
+import uz.jasurbek.notes.di.activities.ActivityBuilderModule
+import uz.jasurbek.notes.di.vm.ViewModelFactoryModule
 import javax.inject.Singleton
 
 @Singleton
 @Component(
     modules = [
         AndroidSupportInjectionModule::class,
-        AppModule::class
+        AppModule::class,
+        ActivityBuilderModule::class,
+        ViewModelFactoryModule::class
     ]
 )
 interface AppComponent : AndroidInjector<BaseApplication> {
