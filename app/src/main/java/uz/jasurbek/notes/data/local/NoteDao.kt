@@ -7,13 +7,16 @@ import uz.jasurbek.notes.data.model.Note
 interface NoteDao {
 
     @Insert
-    suspend fun insertNote(note : Note) : Long
+    suspend fun insertNote(note: Note): Long
 
     @Query("Select * from notes where status = :notesStatus")
-    suspend fun filterNotes(notesStatus : Int) : List<Note>
+    suspend fun filterNotes(notesStatus: Int): List<Note>
 
     @Query("Select * from notes")
-    suspend fun allNotes() : List<Note>
+    suspend fun allNotes(): List<Note>
+
+    @Query("Select * from notes where id = :noteID")
+    suspend fun getNote(noteID: String): Note
 
     @Delete
     suspend fun deleteNote(note: Note)

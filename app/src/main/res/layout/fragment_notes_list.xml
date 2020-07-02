@@ -42,7 +42,7 @@
                     android:layout_gravity="center" />
 
                 <TextView
-                    android:text="You did not save any notes yet. Add \'+\' button to add one"
+                    android:text="@string/no_saved_note_info"
                     android:id="@+id/noNotesText"
                     android:layout_marginTop="@dimen/_15sdp"
                     android:layout_marginStart="@dimen/_25sdp"

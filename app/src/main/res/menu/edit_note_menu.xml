@@ -6,4 +6,9 @@
         android:icon="@drawable/ic_delete"
         android:title="@string/delete_note"
         app:showAsAction="always" />
+    <item
+        app:showAsAction="ifRoom"
+        android:icon="@drawable/ic_check"
+        android:title="@string/save_note"
+        android:id="@+id/saveEditNote"/>
 </menu>

@@ -17,6 +17,7 @@ class NoteOperationRepo @Inject constructor(
     suspend fun deleteNote(note: Note) = noteDao.deleteNote(note)
     suspend fun updateNote(note: Note) = noteDao.updateNote(note)
     suspend fun insertNote(note: Note) = noteDao.insertNote(note)
+    suspend fun getNote(noteID: String) = noteDao.getNote(noteID)
 
 
     /*Additional helper functions to make UI code cleaner*/

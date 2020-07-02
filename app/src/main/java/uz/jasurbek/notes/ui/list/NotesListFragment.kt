@@ -7,6 +7,7 @@ import android.view.ViewGroup
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
+import dagger.android.support.DaggerAppCompatActivity
 import dagger.android.support.DaggerFragment
 import kotlinx.android.synthetic.main.fragment_notes_list.*
 import uz.jasurbek.notes.R
@@ -40,10 +41,16 @@ class NotesListFragment : DaggerFragment() {
 
 
     private fun setupUI() {
-
+        setupPageTitle()
         setupRV()
         observeNotes()
         setClickListeners()
+    }
+
+
+    private fun setupPageTitle() {
+        val parentActivity = activity as? DaggerAppCompatActivity
+        parentActivity?.supportActionBar?.title = "Note list"
     }
 
 
