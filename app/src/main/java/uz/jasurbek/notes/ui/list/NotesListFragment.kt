@@ -4,6 +4,7 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.fragment.app.viewModels
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import dagger.android.support.DaggerFragment
@@ -17,10 +18,9 @@ import javax.inject.Inject
 
 class NotesListFragment : DaggerFragment() {
 
-    private lateinit var viewModel: NotesListViewModel
-
     @Inject
     lateinit var providerFactory: ViewModelProvider.Factory
+    private val viewModel by viewModels<NotesListViewModel> { providerFactory }
 
     private lateinit var noteListAdapter: NoteListAdapter
     private var loadNotesWithStatus: Int = NoteStatus.NOTES_STATUS_DEFAULT
@@ -40,17 +40,10 @@ class NotesListFragment : DaggerFragment() {
 
 
     private fun setupUI() {
-        initVM()
+
         setupRV()
         observeNotes()
         setClickListeners()
-    }
-
-    private fun initVM() {
-        viewModel = ViewModelProvider(
-            this,
-            providerFactory
-        )[NotesListViewModel::class.java]
     }
 
 

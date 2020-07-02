@@ -9,6 +9,6 @@
         android:label="NotesListFragment" />
     <fragment
         android:id="@+id/notesAddAndEditFragment"
-        android:name="uz.jasurbek.notes.ui.operation.NotesAddAndEditFragment"
+        android:name="uz.jasurbek.notes.ui.operation.NoteOperationsFragment"
         android:label="NotesAddAndEditFragment" />
 </navigation>

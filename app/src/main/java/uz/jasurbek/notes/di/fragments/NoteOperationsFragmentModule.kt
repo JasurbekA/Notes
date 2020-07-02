@@ -8,9 +8,10 @@ import dagger.multibindings.IntoMap
 import uz.jasurbek.notes.data.local.NoteDatabase
 import uz.jasurbek.notes.di.vm.ViewModelKey
 import uz.jasurbek.notes.ui.list.NotesListViewModel
+import uz.jasurbek.notes.ui.operation.NoteOperationsViewModel
 
 @Module
-abstract class NoteListFragmentModule {
+abstract class NoteOperationsFragmentModule {
 
     companion object {
         @JvmStatic
@@ -21,7 +22,7 @@ abstract class NoteListFragmentModule {
 
     @Binds
     @IntoMap
-    @ViewModelKey(NotesListViewModel::class)
-    abstract fun bindListViewModel(viewModel: NotesListViewModel): ViewModel
+    @ViewModelKey(NoteOperationsViewModel::class)
+    abstract fun bindOperationViewModel(viewModel: NoteOperationsViewModel): ViewModel
 
 }

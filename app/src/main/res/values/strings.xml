@@ -3,4 +3,6 @@
     <string name="description_hint">Enter description here ...</string>
     <string name="title_hint">Enter title ...</string>
     <string name="no_due">No due date is selected</string>
+    <string name="save_note">Save note</string>
+    <string name="delete_note">Delete note</string>
 </resources>
