@@ -1,8 +1,7 @@
-package uz.jasurbek.notes.date.local
+package uz.jasurbek.notes.data.local
 
-import androidx.lifecycle.LiveData
 import androidx.room.*
-import uz.jasurbek.notes.date.model.Note
+import uz.jasurbek.notes.data.model.Note
 
 @Dao
 interface NoteDao {

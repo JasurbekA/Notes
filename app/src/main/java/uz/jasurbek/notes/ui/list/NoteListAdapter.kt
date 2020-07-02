@@ -9,7 +9,7 @@ import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import kotlinx.android.synthetic.main.item_notes.view.*
 import uz.jasurbek.notes.R
-import uz.jasurbek.notes.date.model.Note
+import uz.jasurbek.notes.data.model.Note
 
 
 class NoteListAdapter :

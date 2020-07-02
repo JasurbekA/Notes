@@ -1,4 +1,4 @@
-package uz.jasurbek.notes.date
+package uz.jasurbek.notes.data
 
 object Constants {
     const val DB_VERSION = 1

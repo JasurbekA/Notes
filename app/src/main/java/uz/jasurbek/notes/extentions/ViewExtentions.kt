@@ -1,6 +1,7 @@
 package uz.jasurbek.notes.extentions
 
 import android.os.Bundle
+import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.NavHostFragment
 
@@ -14,4 +15,8 @@ fun Fragment.navigate(
     }
     navigate(destinationID, bundle)
 }
+
+fun Fragment.toast(message: String) =
+    Toast.makeText(context, message, Toast.LENGTH_SHORT).show()
+
 

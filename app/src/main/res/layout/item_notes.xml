@@ -1,13 +1,59 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="wrap_content"
+    android:layout_margin="@dimen/_8sdp"
+    app:cardCornerRadius="@dimen/_4sdp"
+    app:cardElevation="@dimen/_3sdp">
 
 
-    <androidx.appcompat.widget.AppCompatTextView
+    <RelativeLayout
+        android:id="@+id/noteRowContainer"
         android:layout_width="match_parent"
-        android:id="@+id/noteName"
-        android:layout_height="@dimen/_40sdp"/>
+        android:layout_height="match_parent"
+        android:padding="@dimen/_5sdp">
 
-</LinearLayout>
+        <androidx.appcompat.widget.AppCompatImageView
+            android:id="@+id/noteImage"
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/_100sdp"
+            android:scaleType="centerCrop"
+            tools:src="@mipmap/ic_launcher" />
+
+        <TextView
+            android:id="@+id/noteName"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/noteImage"
+            android:layout_toStartOf="@id/noteDueDate"
+            android:ellipsize="end"
+            android:gravity="start"
+            android:maxLines="1"
+            android:textColor="@android:color/black"
+            android:textSize="20sp"
+            tools:text="Note title" />
+
+        <TextView
+            android:id="@+id/noteDueDate"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/noteImage"
+            android:layout_alignParentEnd="true"
+            android:textColor="@android:color/secondary_text_dark"
+            android:textSize="20sp"
+            tools:text="24-06-2020" />
+
+        <TextView
+            android:id="@+id/noteDesc"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/noteName"
+            android:ellipsize="end"
+            android:maxLines="8"
+            android:textSize="15sp"
+            tools:text="Remind me every morning to wash my teeth at 8 o'clock" />
+    </RelativeLayout>
+
+</com.google.android.material.card.MaterialCardView>

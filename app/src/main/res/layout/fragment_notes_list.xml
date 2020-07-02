@@ -35,12 +35,22 @@
 
                 <androidx.appcompat.widget.AppCompatImageView
                     android:id="@+id/noNotesIcon"
-                    android:layout_width="96dp"
-                    android:layout_height="96dp"
+                    app:srcCompat="@drawable/ic_note"
+                    app:tint="@color/colorPrimary"
+                    android:layout_width="@dimen/_70sdp"
+                    android:layout_height="@dimen/_70sdp"
                     android:layout_gravity="center" />
 
                 <TextView
+                    android:text="You did not save any notes yet. Add \'+\' button to add one"
                     android:id="@+id/noNotesText"
+                    android:layout_marginTop="@dimen/_15sdp"
+                    android:layout_marginStart="@dimen/_25sdp"
+                    android:layout_marginEnd="@dimen/_25sdp"
+                    android:ellipsize="end"
+                    android:maxLines="3"
+                    android:textAlignment="center"
+                    android:textSize="@dimen/_15sdp"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_gravity="center" />

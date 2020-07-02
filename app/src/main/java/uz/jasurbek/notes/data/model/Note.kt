@@ -1,4 +1,4 @@
-package uz.jasurbek.notes.date.model
+package uz.jasurbek.notes.data.model
 
 import androidx.room.ColumnInfo
 import androidx.room.Entity
