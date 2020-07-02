@@ -1,11 +1,11 @@
-package uz.jasurbek.notes
+package uz.jasurbek.notes.ui
 
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import androidx.appcompat.app.AppCompatActivity
+import dagger.android.support.DaggerAppCompatActivity
+import uz.jasurbek.notes.R
 
 class MainActivity : AppCompatActivity() {
-
-
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)

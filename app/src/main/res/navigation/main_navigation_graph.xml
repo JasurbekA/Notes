@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto" android:id="@+id/main_navigation_graph"
+    app:startDestination="@id/notesListFragment">
+
+    <fragment
+        android:id="@+id/notesListFragment"
+        android:name="uz.jasurbek.notes.ui.NotesListFragment"
+        android:label="NotesListFragment" />
+    <fragment
+        android:id="@+id/notesAddAndEditFragment"
+        android:name="uz.jasurbek.notes.ui.NotesAddAndEditFragment"
+        android:label="NotesAddAndEditFragment" />
+</navigation>
