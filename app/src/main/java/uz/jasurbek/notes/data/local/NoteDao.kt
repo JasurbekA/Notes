@@ -1,5 +1,6 @@
 package uz.jasurbek.notes.data.local
 
+import androidx.lifecycle.LiveData
 import androidx.room.*
 import uz.jasurbek.notes.data.model.Note
 
@@ -7,13 +8,13 @@ import uz.jasurbek.notes.data.model.Note
 interface NoteDao {
 
     @Insert
-    suspend fun insertNote(note: Note): Long
+    suspend fun insertNote(note: Note)
 
     @Query("Select * from notes where status = :notesStatus")
-    suspend fun filterNotes(notesStatus: Int): List<Note>
+    fun filterNotes(notesStatus: Int): LiveData<List<Note>>
 
     @Query("Select * from notes")
-    suspend fun allNotes(): List<Note>
+    fun allNotes(): LiveData<List<Note>>
 
     @Query("Select * from notes where id = :noteID")
     suspend fun getNote(noteID: String): Note

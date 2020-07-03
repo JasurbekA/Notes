@@ -4,6 +4,7 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.core.os.bundleOf
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
@@ -11,6 +12,7 @@ import dagger.android.support.DaggerAppCompatActivity
 import dagger.android.support.DaggerFragment
 import kotlinx.android.synthetic.main.fragment_notes_list.*
 import uz.jasurbek.notes.R
+import uz.jasurbek.notes.data.Constants
 import uz.jasurbek.notes.data.model.Note
 import uz.jasurbek.notes.data.model.NoteStatus
 import uz.jasurbek.notes.extentions.navigate
@@ -34,8 +36,8 @@ class NotesListFragment : DaggerFragment() {
     ): View? = inflater.inflate(R.layout.fragment_notes_list, container, false)
 
 
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        super.onViewCreated(view, savedInstanceState)
+    override fun onResume() {
+        super.onResume()
         setupUI()
     }
 
@@ -43,7 +45,7 @@ class NotesListFragment : DaggerFragment() {
     private fun setupUI() {
         setupPageTitle()
         setupRV()
-        observeNotes()
+        observeNotes(loadNotesWithStatus)
         setClickListeners()
     }
 
@@ -53,20 +55,21 @@ class NotesListFragment : DaggerFragment() {
         parentActivity?.supportActionBar?.title = "Note list"
     }
 
+    private val itemClickEvent = object : ItemClickEvent {
+        override fun onItemClicked(noteID: String) {
+            val bundle = bundleOf(Constants.BUNDLE_KEY_NOTE_OPERATION to noteID)
+            navigate(R.id.notesAddAndEditFragment, bundle)
+        }
+    }
 
     private fun setupRV() {
-        noteListAdapter = NoteListAdapter()
+        noteListAdapter = NoteListAdapter(itemClickEvent)
         notesListRV.adapter = noteListAdapter
     }
 
-    private fun observeNotes() {
-        viewModel.getNotes(loadNotesWithStatus)
-        viewModel.noteResponse.observe(viewLifecycleOwner, Observer {
-            when (it) {
-                is LoadingNoteStatus.OnLoading -> println("observeNotes Loading")
-                is LoadingNoteStatus.OnSuccess -> loadingNotesSuccess(it.notes)
-                is LoadingNoteStatus.OnError -> toast(it.errorMessage)
-            }
+    private fun observeNotes(status: Int) {
+        viewModel.observeNotes(status).observe(viewLifecycleOwner, Observer {
+            loadingNotesSuccess(it)
         })
     }
 

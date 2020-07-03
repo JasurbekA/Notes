@@ -1,5 +1,6 @@
 package uz.jasurbek.notes.data.repos
 
+import androidx.lifecycle.LiveData
 import uz.jasurbek.notes.data.local.NoteDao
 import uz.jasurbek.notes.data.model.Note
 import uz.jasurbek.notes.data.model.NoteStatus
@@ -7,10 +8,10 @@ import javax.inject.Inject
 
 class NoteListRepo @Inject constructor(private val noteDao: NoteDao) {
 
-    private suspend fun getAllNotes(): List<Note> = noteDao.allNotes()
-    private suspend fun filterNotes(status: Int): List<Note> = noteDao.filterNotes(status)
+    private fun getAllNotes() = noteDao.allNotes()
+    private fun filterNotes(status: Int)= noteDao.filterNotes(status)
 
-    suspend fun getNotes(status: Int) : List<Note> =
+    fun getNotes(status: Int) : LiveData<List<Note>> =
         if (status == NoteStatus.NOTES_STATUS_DEFAULT) getAllNotes()
         else filterNotes(status)
 

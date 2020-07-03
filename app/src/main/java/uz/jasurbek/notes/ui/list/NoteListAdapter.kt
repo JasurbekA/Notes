@@ -4,15 +4,18 @@ package uz.jasurbek.notes.ui.list
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.appcompat.widget.AppCompatImageView
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
+import coil.api.load
 import kotlinx.android.synthetic.main.item_notes.view.*
 import uz.jasurbek.notes.R
 import uz.jasurbek.notes.data.model.Note
+import java.io.File
 
 
-class NoteListAdapter :
+class NoteListAdapter(private val itemClickEvent: ItemClickEvent?=null) :
     ListAdapter<Note, NoteListAdapter.NoteViewHolder>(NoteDiffCallback()) {
 
     override fun onBindViewHolder(holder: NoteViewHolder, position: Int) =
@@ -27,10 +30,35 @@ class NoteListAdapter :
 
     inner class NoteViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         fun bindItem(note: Note): Unit = with(itemView) {
+
+            setOnClickListener { itemClickEvent?.onItemClicked(note.id) }
+
             noteName.text = note.name
+            noteDesc.text = note.description
+
+            val dueDateText = note.dueDate ?: "Not set"
+            noteDueDate.text = dueDateText
+
+            loadImage(noteImage, note.imagePath)
+        }
+
+        private fun loadImage(imageView: AppCompatImageView, imagePath: String?) {
+            if (imagePath == null) imageView.visibility = View.GONE
+            else {
+                val imageFile = File(imagePath)
+                if (imageFile.exists()) {
+                    imageView.visibility = View.VISIBLE
+                    imageView.load(imageFile)
+                } else imageView.visibility = View.GONE
+            }
         }
     }
 
+}
+
+
+interface ItemClickEvent {
+    fun onItemClicked(noteID: String)
 }
 
 /**
@@ -40,11 +68,6 @@ class NoteListAdapter :
  * list that's been passed to `submitList`.
  */
 class NoteDiffCallback : DiffUtil.ItemCallback<Note>() {
-    override fun areItemsTheSame(oldItem: Note, newItem: Note): Boolean {
-        return oldItem.id == newItem.id
-    }
-
-    override fun areContentsTheSame(oldItem: Note, newItem: Note): Boolean {
-        return oldItem isItemsTheSame newItem
-    }
+    override fun areItemsTheSame(oldItem: Note, newItem: Note) = oldItem.id == newItem.id
+    override fun areContentsTheSame(oldItem: Note, newItem: Note) = oldItem.isItemsTheSame(newItem)
 }

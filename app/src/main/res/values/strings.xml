@@ -1,9 +1,10 @@
 <resources>
     <string name="app_name">Notes</string>
-    <string name="description_hint">Enter description here ...</string>
-    <string name="title_hint">Enter title ...</string>
-    <string name="no_due">No due date is selected</string>
+    <string name="description_hint">Enter description here …</string>
+    <string name="title_hint">Enter title …</string>
+    <string name="no_due">Due date is not selected</string>
     <string name="save_note">Save note</string>
     <string name="delete_note">Delete note</string>
-    <string name="no_saved_note_info">You did not save any notes yet\n. Add \'+\' button to add one</string>
+    <string name="no_saved_note_info">You did not save any notes yet\n Add \'+\' button to add one</string>
+    <string name="no_reminder">(No reminder)</string>
 </resources>

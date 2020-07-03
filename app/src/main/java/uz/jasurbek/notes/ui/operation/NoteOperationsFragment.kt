@@ -12,6 +12,7 @@ import android.view.*
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.core.content.FileProvider
+import androidx.core.net.toUri
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
@@ -24,11 +25,12 @@ import uz.jasurbek.notes.data.Constants
 import uz.jasurbek.notes.data.Constants.choosingPhotoOptions
 import uz.jasurbek.notes.data.Constants.moreOptions
 import uz.jasurbek.notes.data.Constants.noteStatusOptions
+import uz.jasurbek.notes.data.Constants.reminderOptions
 import uz.jasurbek.notes.data.model.Note
-import uz.jasurbek.notes.extentions.showOptionsAlertDialog
-import uz.jasurbek.notes.extentions.toast
+import uz.jasurbek.notes.extentions.*
 import uz.jasurbek.notes.ui.list.LoadingNoteStatus
 import uz.jasurbek.notes.util.Util
+import java.io.File
 import java.io.IOException
 import javax.inject.Inject
 
@@ -38,9 +40,9 @@ class NoteOperationsFragment : DaggerFragment() {
     @Inject
     lateinit var providerFactory: ViewModelProvider.Factory
     private val viewModel by viewModels<NoteOperationsViewModel> { providerFactory }
-    private lateinit var currentNote: Note
 
-    private var cameraImageUri: Uri? = null
+    private lateinit var currentNote: Note
+    private var attachedImageUri: Uri? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -79,8 +81,8 @@ class NoteOperationsFragment : DaggerFragment() {
             return
         }
         when (requestCode) {
-            Constants.REQUEST_CODE_CHOOSE_GALLERY_IMAGE -> choosePhotoFromGallery()
-            Constants.REQUEST_CODE_TAKE_PHOTO_IMAGE -> takePhotoFromCamera()
+            Constants.REQUEST_CODE_CHOOSE_GALLERY_IMAGE -> choosePhotoFromGalleryAction()
+            Constants.REQUEST_CODE_TAKE_PHOTO_IMAGE -> takePhotoFromCameraAction()
         }
     }
 
@@ -89,14 +91,14 @@ class NoteOperationsFragment : DaggerFragment() {
         if (resultCode == RESULT_CANCELED) return
         when (requestCode) {
             Constants.REQUEST_CODE_CHOOSE_GALLERY_IMAGE -> loadImage(data?.data)
-            Constants.REQUEST_CODE_TAKE_PHOTO_IMAGE -> loadImage(cameraImageUri)
+            Constants.REQUEST_CODE_TAKE_PHOTO_IMAGE -> loadImage(attachedImageUri)
         }
     }
 
     private fun initVariables() {
         val currentNodeID = arguments?.getString(Constants.BUNDLE_KEY_NOTE_OPERATION)
         if (currentNodeID.isNullOrBlank()) {
-            currentNote = Constants.rawNote
+            currentNote = Note(name = "", description = "")
             setupUI()
         } else {
             viewModel.getNote(currentNodeID)
@@ -125,10 +127,53 @@ class NoteOperationsFragment : DaggerFragment() {
         when (item.itemId) {
             R.id.saveEditNote -> toast("Edit saved")
             R.id.deleteNote -> toast("Note deleted")
-            R.id.saveNote -> toast("Note added")
+            R.id.saveNote -> saveNoteClicked()
         }
         return super.onOptionsItemSelected(item)
     }
+
+    private fun saveNoteClicked() {
+        if (requiredFieldsNotFilled()) {
+            operationNoteTitle.showSnackBar("Title and description are required")
+            return
+        }
+        setNoteRequiredFields()
+        viewModel.saveNote(requireContext(), currentNote, attachedImageUri)
+        clearUpResources()
+        activity?.onBackPressed()
+    }
+
+
+    private fun clearUpResources() {
+        val empty = ""
+        val defaultStatus = "Status: Active"
+        operationNoteTitle.setText(empty)
+        operationNoteDesc.setText(empty)
+        loadDefaultImage()
+        operationNoteDueDate.text = getString(R.string.no_due)
+        operationNoteReminder.text = getString(R.string.no_reminder)
+        operationNoteStatus.text = defaultStatus
+        currentNote = Note(name = "", description = "")
+    }
+
+
+    private fun loadDefaultImage() {
+        val padding = (R.dimen._10sdp)
+        operationNoteImage.apply {
+            setPadding(padding, padding, padding, padding)
+            load(R.drawable.ic_add_photo)
+        }
+    }
+
+    private fun setNoteRequiredFields() {
+        currentNote.name = operationNoteTitle.text.toString()
+        currentNote.description = operationNoteDesc.text.toString()
+    }
+
+
+    private fun requiredFieldsNotFilled() =
+        operationNoteTitle.text.isNullOrEmpty() || operationNoteDesc.text.isNullOrEmpty()
+
 
     private fun updateUI(note: Note) {
         currentNote = note
@@ -136,10 +181,12 @@ class NoteOperationsFragment : DaggerFragment() {
     }
 
     private fun setupUI() {
-        currentNote.imagePath?.let { loadImage(Uri.parse(it)) }
+        loadImage(currentNote.imagePath)
         loadStatus(Util.mapStatusToString(currentNote.status))
         loadTitle(currentNote.name)
         loadDescription(currentNote.description)
+        loadDueDate(currentNote.dueDate)
+        loadReminder(currentNote.alarmDate)
         setClickListeners()
     }
 
@@ -149,9 +196,19 @@ class NoteOperationsFragment : DaggerFragment() {
         operationMoreOptionView.setOnClickListener { selectMoreOptions() }
     }
 
+    private fun loadImage(imagePath: String?) {
+        if (imagePath == null) loadDefaultImage()
+        else {
+            val imageFile = File(imagePath)
+            if (imageFile.exists()) loadImage(imageFile.toUri())
+            else loadDefaultImage()
+        }
+    }
+
     private fun loadImage(imageUri: Uri?) = imageUri?.let {
+        attachedImageUri = it
         operationNoteImage.setPadding(0, 0, 0, 0)
-        operationNoteImage.load(it)
+        operationNoteImage.load(attachedImageUri)
     }
 
     private fun loadStatus(status: String?) {
@@ -167,12 +224,22 @@ class NoteOperationsFragment : DaggerFragment() {
         operationNoteDesc.setText(it)
     }
 
+    private fun loadDueDate(dueDate: String?) = dueDate?.let {
+        operationNoteDueDate.text = it
+    }
+
+    private fun loadReminder(reminderDate: String?) = reminderDate?.let {
+        val difference = Util.calculateReminderDifference(operationNoteDueDate.text.toString(), it)
+        val result = "(-$difference hours)"
+        operationNoteReminder.text = result
+    }
+
 
     private fun selectMoreOptions() =
         showOptionsAlertDialog(moreOptions, "More options") {
             when (it) {
-                "Due date" -> toast(it)
-                "Reminder" -> toast(it)
+                "Due date" -> dueDateClicked()
+                "Reminder" -> reminderClicked()
             }
         }
 
@@ -188,24 +255,51 @@ class NoteOperationsFragment : DaggerFragment() {
     private fun selectImage() =
         showOptionsAlertDialog(choosingPhotoOptions, "Choose your note image") {
             when (it) {
-                "Take Photo" -> openCamera()
-                "Choose from Gallery" -> chooseFromGallery()
+                "Take Photo" -> takeImageFromCameraClick()
+                "Choose from Gallery" -> chooseFromGalleryClick()
             }
         }
 
 
-    private fun openCamera() {
-        if (hasPermissionGranted(Manifest.permission.CAMERA)) takePhotoFromCamera()
+    private fun dueDateClicked() =
+        showDatePickerDialog { date ->
+            showTimePickerDialog(date) {
+                currentNote.dueDate = Util.mapCalendarStringDate(it)
+                loadDueDate(currentNote.dueDate)
+            }
+        }
+
+    private fun reminderClicked() {
+        if (operationNoteDueDate.text == getString(R.string.no_due)) {
+            toast("You cannot set reminder unless you select due date")
+            return
+        }
+        showSingleChoiceDialog(reminderOptions, "Remind me") {
+            val result = Util.isReminderAllowed(operationNoteDueDate.text.toString(), it)
+            if (result) {
+                currentNote.alarmDate =
+                    Util.getReminderDate(operationNoteDueDate.text.toString(), it)
+                loadReminder(currentNote.alarmDate)
+            } else {
+                operationNoteDueDate.showSnackBar("Please try different offset")
+            }
+
+        }
+    }
+
+
+    private fun takeImageFromCameraClick() {
+        if (hasPermissionGranted(Manifest.permission.CAMERA)) takePhotoFromCameraAction()
         else requestPermission(
             arrayOf(Manifest.permission.CAMERA),
             Constants.REQUEST_CODE_TAKE_PHOTO_IMAGE
         )
     }
 
-    private fun chooseFromGallery() {
+    private fun chooseFromGalleryClick() {
         if (hasPermissionGranted(Manifest.permission.READ_EXTERNAL_STORAGE) &&
             hasPermissionGranted(Manifest.permission.WRITE_EXTERNAL_STORAGE)
-        ) choosePhotoFromGallery()
+        ) choosePhotoFromGalleryAction()
         else requestPermission(
             arrayOf(
                 Manifest.permission.READ_EXTERNAL_STORAGE,
@@ -231,23 +325,23 @@ class NoteOperationsFragment : DaggerFragment() {
         ) == PackageManager.PERMISSION_GRANTED
 
 
-    private fun choosePhotoFromGallery() = with(Intent()) {
+    private fun choosePhotoFromGalleryAction() = with(Intent()) {
         type = "image/*"
         action = Intent.ACTION_GET_CONTENT
         startActivityForResult(this, Constants.REQUEST_CODE_CHOOSE_GALLERY_IMAGE)
     }
 
 
-    private fun takePhotoFromCamera() {
+    private fun takePhotoFromCameraAction() {
         val intent = Intent(MediaStore.ACTION_IMAGE_CAPTURE)
         if (intent.resolveActivity(requireActivity().packageManager) != null) {
             try {
                 val imageFile = viewModel.createImageFile(activity)
-                cameraImageUri = if (Build.VERSION.SDK_INT > Build.VERSION_CODES.LOLLIPOP)
+                attachedImageUri = if (Build.VERSION.SDK_INT > Build.VERSION_CODES.LOLLIPOP)
                     FileProvider.getUriForFile(requireContext(), Constants.AUTHORITY, imageFile)
                 else Uri.fromFile(imageFile)
 
-                intent.putExtra(MediaStore.EXTRA_OUTPUT, cameraImageUri)
+                intent.putExtra(MediaStore.EXTRA_OUTPUT, attachedImageUri)
                 startActivityForResult(
                     intent,
                     Constants.REQUEST_CODE_TAKE_PHOTO_IMAGE
@@ -257,6 +351,5 @@ class NoteOperationsFragment : DaggerFragment() {
             }
         }
     }
-
 
 }

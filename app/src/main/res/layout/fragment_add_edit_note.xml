@@ -20,9 +20,9 @@
         <androidx.appcompat.widget.AppCompatImageView
             android:id="@+id/operationNoteImage"
             android:layout_width="match_parent"
-            android:scaleType="centerCrop"
             android:layout_height="match_parent"
             android:padding="@dimen/_12sdp"
+            android:scaleType="centerCrop"
             app:srcCompat="@drawable/ic_add_photo" />
 
     </com.google.android.material.card.MaterialCardView>
@@ -32,26 +32,27 @@
         android:id="@+id/operationNoteStatus"
         style="@style/Widget.MaterialComponents.Button.Icon"
         android:layout_width="0dp"
-        app:backgroundTint="@color/design_default_color_background"
         android:layout_height="wrap_content"
         android:layout_marginStart="@dimen/_8sdp"
         android:layout_marginEnd="@dimen/_8sdp"
         android:gravity="center_vertical"
-        tools:text="Status: Active"
+        android:paddingTop="@dimen/_2sdp"
+        android:paddingEnd="0dp"
+        android:paddingBottom="@dimen/_2sdp"
         android:textAllCaps="false"
         android:textColor="@android:color/holo_blue_light"
         android:textSize="@dimen/_12sdp"
+        app:backgroundTint="@color/design_default_color_background"
         app:icon="@drawable/ic_keyboard_arrow_down"
         app:iconGravity="end"
-        android:paddingTop="@dimen/_2sdp"
-        android:paddingBottom="@dimen/_2sdp"
-        android:paddingEnd="0dp"
         app:iconSize="@dimen/_22sdp"
         app:iconTint="@android:color/darker_gray"
+        app:layout_constraintBottom_toBottomOf="@id/noteImageHolder"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toEndOf="@id/noteImageHolder"
         app:layout_constraintTop_toBottomOf="@id/operationNoteTitle"
-        tools:ignore="RtlSymmetry" />
+        tools:ignore="RtlSymmetry"
+        tools:text="Status: Active" />
 
     <EditText
         android:id="@+id/operationNoteTitle"
@@ -71,9 +72,11 @@
         android:scrollHorizontally="false"
         android:textAppearance="?android:attr/textAppearanceMedium"
         android:textSize="@dimen/_16sdp"
+        app:layout_constraintBottom_toTopOf="@id/operationNoteStatus"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toEndOf="@id/noteImageHolder"
-        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintTop_toTopOf="@id/noteImageHolder"
+        app:layout_constraintVertical_chainStyle="packed"
         tools:ignore="Autofill,RtlSymmetry" />
 
 
@@ -120,15 +123,26 @@
 
     <TextView
         android:id="@+id/operationNoteDueDate"
-        android:layout_width="0dp"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:padding="@dimen/_8sdp"
         android:text="@string/no_due"
         android:textColor="@android:color/black"
         android:textSize="@dimen/_14sdp"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toStartOf="@+id/operationMoreOptionView"
         app:layout_constraintStart_toStartOf="parent" />
+
+    <TextView
+        android:id="@+id/operationNoteReminder"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:paddingTop="@dimen/_8sdp"
+        android:paddingBottom="@dimen/_8sdp"
+        android:text="@string/no_reminder"
+        android:textSize="@dimen/_14sdp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toStartOf="@id/operationMoreOptionView"
+        app:layout_constraintStart_toEndOf="@id/operationNoteDueDate" />
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>

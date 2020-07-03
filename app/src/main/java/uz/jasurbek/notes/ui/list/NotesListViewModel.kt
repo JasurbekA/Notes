@@ -1,15 +1,20 @@
 package uz.jasurbek.notes.ui.list
 
-import androidx.lifecycle.*
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.CoroutineExceptionHandler
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import uz.jasurbek.notes.data.repos.NoteListRepo
+import kotlinx.coroutines.withContext
 import uz.jasurbek.notes.data.model.Note
+import uz.jasurbek.notes.data.repos.NoteListRepo
 import javax.inject.Inject
 
 class NotesListViewModel @Inject constructor(private val noteRepo: NoteListRepo) : ViewModel() {
 
-    private var _noteResponse = MutableLiveData<LoadingNoteStatus>()
+    private val _noteResponse = MutableLiveData<LoadingNoteStatus>()
     val noteResponse: LiveData<LoadingNoteStatus>
         get() = _noteResponse
 
@@ -18,11 +23,14 @@ class NotesListViewModel @Inject constructor(private val noteRepo: NoteListRepo)
         _noteResponse.value = LoadingNoteStatus.OnError("Error while loading notes")
     }
 
-    fun getNotes(status: Int) = viewModelScope.launch {
-        _noteResponse = liveData(errorHandling) {
-            emit(LoadingNoteStatus.OnLoading)
-            emit(LoadingNoteStatus.OnSuccess(noteRepo.getNotes(status)))
-        } as MutableLiveData<LoadingNoteStatus>
+    fun observeNotes(status: Int) = noteRepo.getNotes(status)
+
+    fun getNotes(status: Int) = viewModelScope.launch(errorHandling) {
+
+        _noteResponse.value = LoadingNoteStatus.OnLoading
+
+       _noteResponse.value = LoadingNoteStatus.OnLoading
+
     }
 
 }

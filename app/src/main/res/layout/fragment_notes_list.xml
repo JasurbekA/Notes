@@ -68,6 +68,7 @@
         app:layout_anchor="@id/refreshLayout"
         app:layout_anchorGravity="bottom|right|end"
         app:srcCompat="@drawable/ic_add"
+        app:backgroundTint="@color/colorPrimary"
         app:tint="@android:color/white" />
 </androidx.coordinatorlayout.widget.CoordinatorLayout>
 
