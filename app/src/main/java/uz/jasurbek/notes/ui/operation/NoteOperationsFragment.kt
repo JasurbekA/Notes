@@ -31,8 +31,10 @@ import uz.jasurbek.notes.data.Constants.reminderOptions
 import uz.jasurbek.notes.data.model.Note
 import uz.jasurbek.notes.extentions.*
 import uz.jasurbek.notes.ui.list.LoadingNoteStatus
+import uz.jasurbek.notes.util.EventObserver
 import java.io.File
 import java.io.IOException
+import java.util.*
 import javax.inject.Inject
 
 class NoteOperationsFragment : DaggerFragment() {
@@ -136,7 +138,7 @@ class NoteOperationsFragment : DaggerFragment() {
 
 
     private fun deleteCurrentNoteClicked() {
-        viewModel.deleteCurrentNote(currentNote)
+        viewModel.deleteCurrentNote(requireContext(), currentNote)
         activity?.onBackPressed()
     }
 
@@ -146,17 +148,26 @@ class NoteOperationsFragment : DaggerFragment() {
             operationNoteTitle.showSnackBar("Title and description are required")
             return
         }
+        operationNoteImage?.hideSoftKeyboard()
         setNoteRequiredFields()
         saveFunction(requireContext(), currentNote, attachedImageUri)
-        activity?.onBackPressed()
+        observeSaveState()
     }
 
+    private fun observeSaveState() {
+        viewModel.noteSaveState.observe(viewLifecycleOwner, EventObserver {
+            when (it) {
+                is SaveNoteState.OnSuccess -> activity?.onBackPressed()
+                is SaveNoteState.OnError -> noteImageHolder?.showSnackBar(it.message)
+            }
+        })
+
+    }
 
     private fun setNoteRequiredFields() {
         currentNote.name = operationNoteTitle.text.toString()
         currentNote.description = operationNoteDesc.text.toString()
     }
-
 
     private fun requiredFieldsNotFilled() =
         operationNoteTitle.text.isNullOrEmpty() || operationNoteDesc.text.isNullOrEmpty()
@@ -216,7 +227,8 @@ class NoteOperationsFragment : DaggerFragment() {
     }
 
     private fun loadReminder(reminderDate: String?) = reminderDate?.let {
-        val difference = viewModel.calculateReminderDifference(operationNoteDueDate.text.toString(), it)
+        val difference =
+            viewModel.calculateReminderDifference(operationNoteDueDate.text.toString(), it)
         val result = "(-$difference hours)"
         operationNoteReminder.text = result
     }
@@ -253,10 +265,18 @@ class NoteOperationsFragment : DaggerFragment() {
     private fun dueDateClicked() =
         showDatePickerDialog { date ->
             showTimePickerDialog(date) {
-                currentNote.dueDate = viewModel.mapCalendarToStringDate(it)
-                loadDueDate(currentNote.dueDate)
+                if (viewModel.isDueTimeAllowed(viewModel.mapCalendarToStringDate(it)))
+                    configDueTimeAndUI(it)
+                else operationNoteImage?.showSnackBar("Please select valid due time")
             }
         }
+
+    private fun configDueTimeAndUI(calendar: Calendar?) {
+        currentNote.dueDate = viewModel.mapCalendarToStringDate(calendar)
+        loadDueDate(currentNote.dueDate)
+        currentNote.alarmDate = null
+        operationNoteReminder.text = getString(R.string.no_reminder)
+    }
 
     private fun reminderClicked() {
         if (operationNoteDueDate.text == getString(R.string.no_due)) {

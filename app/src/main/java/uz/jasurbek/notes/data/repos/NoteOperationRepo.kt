@@ -13,12 +13,12 @@ import android.net.Uri
 import android.os.Build
 import android.os.Environment
 import android.provider.MediaStore
-import androidx.core.content.ContextCompat.getSystemService
 import androidx.fragment.app.FragmentActivity
 import uz.jasurbek.notes.alarm.AlarmReceiver
 import uz.jasurbek.notes.data.Constants
 import uz.jasurbek.notes.data.local.NoteDao
 import uz.jasurbek.notes.data.model.Note
+import uz.jasurbek.notes.util.SharedPrefManager
 import uz.jasurbek.notes.util.Util
 import java.io.File
 import java.io.FileOutputStream
@@ -29,7 +29,8 @@ import javax.inject.Inject
 
 
 class NoteOperationRepo @Inject constructor(
-    private val noteDao: NoteDao
+    private val noteDao: NoteDao,
+    private val prefs: SharedPrefManager
 ) {
     /*Note operations*/
     suspend fun deleteNote(note: Note) = noteDao.deleteNote(note)
@@ -39,13 +40,11 @@ class NoteOperationRepo @Inject constructor(
 
 
     /*Additional helper functions to make UI code cleaner*/
-
+    fun mapStatusToString(status: Int) = Util.mapStatusToString(status)
+    fun mapStatusNameToStatus(name: String) = Util.mapStatusNameToStatus(name)
+    fun mapCalendarToStringDate(calendar: Calendar?) = Util.mapCalendarToStringDate(calendar)
     fun calculateReminderDifference(dueDate: String, reminderDate: String) =
         Util.calculateReminderDifference(dueDate, reminderDate)
-
-    fun mapStatusNameToStatus(name: String) = Util.mapStatusNameToStatus(name)
-
-    fun mapCalendarToStringDate(calendar: Calendar?) = Util.mapCalendarToStringDate(calendar)
 
     fun isReminderAllowed(dueDate: String, hourOffset: Int) =
         Util.isReminderAllowed(dueDate, hourOffset)
@@ -53,27 +52,40 @@ class NoteOperationRepo @Inject constructor(
     fun getReminderDate(dueDate: String, hourOffset: Int) =
         Util.getReminderDate(dueDate, hourOffset)
 
-    fun mapStatusToString(status: Int) = Util.mapStatusToString(status)
+    fun isDueTimeAllowed(dueDate: String) = Util.isDueTimeAllowed(dueDate)
     /*End of helper staff*/
 
 
     /*Start Alarm staff*/
 
-    private fun startAlarm(context: Context, calendar: Calendar, alarmRequestID: Int) {
-        val alarmManager =
-            context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
+    fun startAlarm(context: Context, note: Note) = note.alarmDate?.let {
+        val calendar = Util.mapStringToCalendar(it)
+        val alarmManager = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
         val intent = Intent(context, AlarmReceiver::class.java)
+        intent.putExtra(Constants.NOTIFICATION_BUNDLE_KEY_TITLE, "Test tile")
+        intent.putExtra(Constants.NOTIFICATION_BUNDLE_KEY_BODY, "Test body")
+        val alarmRequestID = calculateAlarmIdForNote(note.id)
         val pendingIntent = PendingIntent.getBroadcast(context, alarmRequestID, intent, 0)
-
         alarmManager.setExact(AlarmManager.RTC_WAKEUP, calendar.timeInMillis, pendingIntent)
     }
 
-    private fun cancelAlarm(context: Context, alarmRequestID: Int) {
-        val alarmManager =
-            context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
+    fun cancelAlarm(context: Context, note: Note) {
+        val alarmManager = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
         val intent = Intent(context, AlarmReceiver::class.java)
+        val alarmRequestID = calculateAlarmIdForNote(note.id)
         val pendingIntent = PendingIntent.getBroadcast(context, alarmRequestID, intent, 0)
         alarmManager.cancel(pendingIntent)
+    }
+
+    private fun saveToPrefs(alarmRequestId: Int, note: Note) {
+
+    }
+
+    private fun calculateAlarmIdForNote(noteID: String): Int {
+        val cal = Util.mapStringToCalendar(noteID, Constants.DB_NOTE_ID_DATE_FORMAT)
+        val stringVal = "${cal.get(Calendar.MONTH)}${cal.get(Calendar.DAY_OF_MONTH)}" +
+                "${cal.get(Calendar.HOUR_OF_DAY)}${cal.get(Calendar.MINUTE)}${cal.get(Calendar.SECOND)}"
+        return stringVal.toInt()
     }
 
     /*End Alarm staff*/
@@ -88,13 +100,10 @@ class NoteOperationRepo @Inject constructor(
 
     fun saveImage(context: Context, imageUri: Uri, callback: (imagePath: String?) -> Unit) {
         val contentResolver = context.contentResolver
-        val imageFile = if (imageUri.path != null) File(imageUri.path!!) else null
         getBitmap(contentResolver, imageUri)?.let {
             saveImageIntoStorage(
-                contentResolver,
-                it,
-                imageFile?.name ?: "${Date().time}.jpg",
-                callback
+                contentResolver, it,
+                "${Date().time}.jpg", callback
             )
         }
     }
@@ -115,10 +124,8 @@ class NoteOperationRepo @Inject constructor(
 
 
     private fun saveImageIntoStorage(
-        contentResolver: ContentResolver,
-        bitmap: Bitmap,
-        name: String,
-        callback: (imagePath: String?) -> Unit
+        contentResolver: ContentResolver, bitmap: Bitmap,
+        name: String, callback: (imagePath: String?) -> Unit
     ) {
         val fos = try {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {

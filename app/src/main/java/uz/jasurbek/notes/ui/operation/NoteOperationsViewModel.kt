@@ -11,6 +11,8 @@ import kotlinx.coroutines.*
 import uz.jasurbek.notes.data.model.Note
 import uz.jasurbek.notes.data.repos.NoteOperationRepo
 import uz.jasurbek.notes.ui.list.LoadingNoteStatus
+import uz.jasurbek.notes.util.Event
+import uz.jasurbek.notes.util.Util
 import java.util.*
 import javax.inject.Inject
 
@@ -21,6 +23,15 @@ class NoteOperationsViewModel @Inject constructor(
     private var _noteResponse = MutableLiveData<LoadingNoteStatus>()
     val noteResponse: LiveData<LoadingNoteStatus>
         get() = _noteResponse
+
+    private var _noteSaveState = MutableLiveData<Event<SaveNoteState>>()
+    val noteSaveState: LiveData<Event<SaveNoteState>>
+        get() = _noteSaveState
+
+
+    private val savingNoteErrorHandler = CoroutineExceptionHandler { _, _ ->
+        _noteSaveState.value = Event(SaveNoteState.OnError("Note has not been saved. Error"))
+    }
 
 
     private val errorHandling = CoroutineExceptionHandler { _, _ ->
@@ -34,40 +45,55 @@ class NoteOperationsViewModel @Inject constructor(
     * Using different IO coroutine will solve the issue that may arise
     * */
 
-
+    /*
+    * Launch execute sequentially, that is why is ok to put success after function call
+    * Eny exception occurred is handled by parent coroutine
+    * */
     private fun updateNote(note: Note) =
-        CoroutineScope(Dispatchers.IO).launch { repo.updateNote(note) }
+        CoroutineScope(Dispatchers.IO).launch {
+            repo.updateNote(note)
+            savingNoteSuccess()
+        }
 
     private fun insertNote(note: Note) =
-        CoroutineScope(Dispatchers.IO).launch { repo.insertNote(note) }
+        CoroutineScope(Dispatchers.IO).launch {
+            repo.insertNote(note)
+            savingNoteSuccess()
+        }
+
+
+
 
     private fun deleteNote(note: Note) =
         CoroutineScope(Dispatchers.IO).launch { repo.deleteNote(note) }
 
-    fun deleteCurrentNote(note: Note) =
+    fun deleteCurrentNote(context: Context, note: Note) =
         CoroutineScope(Dispatchers.IO).launch {
             repo.deleteImage(note.imagePath)
+            repo.cancelAlarm(context, note)
             deleteNote(note)
         }
 
 
     fun saveEditedNote(context: Context, note: Note, imageUri: Uri?) =
-        CoroutineScope(Dispatchers.IO).launch {
+        CoroutineScope(Dispatchers.IO).launch(savingNoteErrorHandler) {
+            //Alarm setting: Warning need to be optimized
+            repo.cancelAlarm(context, note)
+            repo.startAlarm(context, note)
             //Image uri not null means image has been updated
             imageUri?.let { repo.deleteImage(note.imagePath) } // delete previous image
             saveNote(context, note, imageUri, ::updateNote)
         }
 
     fun addNote(context: Context, note: Note, imageUri: Uri?) =
-        CoroutineScope(Dispatchers.IO).launch {
+        CoroutineScope(Dispatchers.IO).launch(savingNoteErrorHandler) {
+            repo.startAlarm(context, note) // will set alarm if only reminder is set
             saveNote(context, note, imageUri, ::insertNote)
         }
 
     private fun saveNote(
-        context: Context,
-        note: Note,
-        imageUri: Uri?,
-        saveFunction: (note: Note) -> Job
+        context: Context, note: Note,
+        imageUri: Uri?, saveFunction: (note: Note) -> Job
     ) {
         if (imageUri == null) saveFunction(note) //note without attached image
         else repo.saveImage(context, imageUri) { attachedImageSavedPath ->
@@ -82,17 +108,20 @@ class NoteOperationsViewModel @Inject constructor(
         val note = repo.getNote(noteID)
         _noteResponse.value = LoadingNoteStatus.OnSuccess(arrayListOf(note))
     }
-    fun mapStatusToString(status: Int) = repo.mapStatusToString(status)
 
+    private suspend fun savingNoteSuccess() = withContext(Dispatchers.Main) {
+        _noteSaveState.value = Event(SaveNoteState.OnSuccess)
+    }
+
+    fun mapStatusNameToStatus(name: String) = repo.mapStatusNameToStatus(name)
+    fun mapCalendarToStringDate(calendar: Calendar?) = repo.mapCalendarToStringDate(calendar)
+    fun mapStatusToString(status: Int) = repo.mapStatusToString(status)
+    fun isDueTimeAllowed(dueDate: String) = repo.isDueTimeAllowed(dueDate)
     fun getReminderDate(dueDate: String, hourOffset: Int) =
         repo.getReminderDate(dueDate, hourOffset)
 
     fun isReminderAllowed(dueDate: String, hourOffset: Int) =
         repo.isReminderAllowed(dueDate, hourOffset)
-
-    fun mapCalendarToStringDate(calendar: Calendar?) = repo.mapCalendarToStringDate(calendar)
-
-    fun mapStatusNameToStatus(name: String) = repo.mapStatusNameToStatus(name)
 
     fun calculateReminderDifference(dueDate: String, reminderDate: String) =
         repo.calculateReminderDifference(dueDate, reminderDate)

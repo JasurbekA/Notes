@@ -7,6 +7,7 @@ import android.content.ContextWrapper
 import android.os.Build
 import androidx.annotation.RequiresApi
 import androidx.core.app.NotificationCompat
+import uz.jasurbek.notes.R
 
 
 class NotificationHelper(context: Context) : ContextWrapper(context) {
@@ -21,7 +22,8 @@ class NotificationHelper(context: Context) : ContextWrapper(context) {
 
     @RequiresApi(Build.VERSION_CODES.O)
     private fun createChannel() {
-        val channel = NotificationChannel(channelID, channelName, NotificationManager.IMPORTANCE_HIGH)
+        val channel =
+            NotificationChannel(channelID, channelName, NotificationManager.IMPORTANCE_HIGH)
         managerInstance().createNotificationChannel(channel)
     }
 
@@ -34,10 +36,11 @@ class NotificationHelper(context: Context) : ContextWrapper(context) {
         return manager
     }
 
-    fun getChannelNotification(): NotificationCompat.Builder =
+    fun getChannelNotification(title: String, message: String): NotificationCompat.Builder =
         NotificationCompat.Builder(applicationContext, channelID)
-            .setContentTitle("Alarm!")
-            .setContentText("Your AlarmManager is working.")
+            .setContentTitle(title)
+            .setContentText(message)
+            .setSmallIcon(R.drawable.ic_note)
 
 
 }

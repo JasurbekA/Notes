@@ -7,7 +7,7 @@
         android:name="android.hardware.camera"
         android:required="false" />
 
-
+    <uses-permission android:name="android.permission.WAKE_LOCK"/>
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.CAMERA" />
@@ -40,7 +40,7 @@
                 android:resource="@xml/file_paths" />
         </provider>
         <!--Alarm receiver-->
-        <receiver android:name=".alarm.AlarmReceiver" />
+        <receiver android:name=".alarm.AlarmReceiver" android:process=":remote"/>
 
 
     </application>

@@ -3,9 +3,12 @@ package uz.jasurbek.notes.extentions
 import android.app.AlertDialog
 import android.app.DatePickerDialog
 import android.app.TimePickerDialog
+import android.content.Context.INPUT_METHOD_SERVICE
 import android.os.Bundle
 import android.view.View
+import android.view.inputmethod.InputMethodManager
 import android.widget.Toast
+import androidx.core.content.ContextCompat.getSystemService
 import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.NavHostFragment
 import com.google.android.material.snackbar.Snackbar
@@ -99,3 +102,8 @@ fun View.showSnackBar(message: String) {
             setAction("Ok") { this.dismiss() }.show()
         }
 }
+fun View?.hideSoftKeyboard() {
+    val imm = this?.context?.getSystemService(INPUT_METHOD_SERVICE) as? InputMethodManager
+    imm?.hideSoftInputFromWindow(this?.windowToken, 0)
+}
+

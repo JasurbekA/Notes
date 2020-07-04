@@ -52,6 +52,12 @@ object Util {
         return dueDateCalendar.timeInMillis >= calendarNow.timeInMillis
     }
 
+    fun isDueTimeAllowed(dueDate: String) : Boolean {
+        val calendarNow = Calendar.getInstance()
+        val dueDateCalendar = mapStringToCalendar(dueDate)
+        return dueDateCalendar.timeInMillis >= calendarNow.timeInMillis
+    }
+
     fun calculateReminderDifference(dueDate: String, reminderDate: String) : Long {
         val due = mapStringToCalendar(dueDate)
         val reminder = mapStringToCalendar(reminderDate)
