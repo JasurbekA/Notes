@@ -1,7 +1,6 @@
 package uz.jasurbek.notes.extentions
 
 
-import android.app.AlertDialog
 import android.app.DatePickerDialog
 import android.app.TimePickerDialog
 import android.content.Context.INPUT_METHOD_SERVICE
@@ -11,7 +10,9 @@ import android.view.inputmethod.InputMethodManager
 import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.NavHostFragment
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.snackbar.Snackbar
+import uz.jasurbek.notes.R
 import java.util.*
 
 
@@ -34,8 +35,9 @@ fun Fragment.showOptionsAlertDialog(
     array: Array<String>,
     title: String,
     callBack: (post: String) -> Unit
-): Unit = with(AlertDialog.Builder(context)) {
+): Unit = with(MaterialAlertDialogBuilder(requireContext())) {
     setTitle(title)
+    setIcon(R.drawable.ic_list)
     setItems(array) { _, item ->
         callBack(array[item])
     }
@@ -46,8 +48,9 @@ fun Fragment.showSingleChoiceDialog(
     array: Array<String>,
     title: String,
     callBack: (hourOffset: Int) -> Unit
-): Unit = with(AlertDialog.Builder(context)) {
+): Unit = with(MaterialAlertDialogBuilder(requireContext())) {
     setTitle(title)
+    setIcon(R.drawable.ic_list)
     setSingleChoiceItems(array, -1) { dialog, position ->
         callBack(position + 1)
         dialog.dismiss()
@@ -55,6 +58,16 @@ fun Fragment.showSingleChoiceDialog(
     show()
 }
 
+fun Fragment.showConfirmationDialog(
+    question: String,
+    positiveButtonClicked: () -> Unit
+): Unit = with(MaterialAlertDialogBuilder(requireContext())) {
+    setTitle("Please confirm")
+    setMessage(question)
+    setIcon(R.drawable.ic_warning)
+    setPositiveButton(android.R.string.yes) { _, _ -> positiveButtonClicked() }
+    setNegativeButton(android.R.string.no, null).show()
+}
 
 fun Fragment.showDatePickerDialog(callBack: (calendar: Calendar) -> Unit) {
     val calendar = Calendar.getInstance()
@@ -64,6 +77,7 @@ fun Fragment.showDatePickerDialog(callBack: (calendar: Calendar) -> Unit) {
         calendar.set(Calendar.DAY_OF_MONTH, day)
         callBack(calendar)
     }
+
 
     DatePickerDialog(
         requireContext(),
@@ -96,16 +110,7 @@ fun Fragment.showTimePickerDialog(chosenDate: Calendar?, callBack: (calendar: Ca
     ).show()
 }
 
-fun Fragment.showConfirmationDialog(
-    question: String,
-    positiveButtonClicked: () -> Unit
-): Unit = with(AlertDialog.Builder(context)) {
-    setTitle("Please confirm")
-    setMessage(question)
-    setIcon(android.R.drawable.ic_dialog_alert)
-    setPositiveButton(android.R.string.yes) { _, _ -> positiveButtonClicked() }
-    setNegativeButton(android.R.string.no, null).show()
-}
+
 
 fun View.showSnackBar(message: String) {
     Snackbar.make(this, message, Snackbar.LENGTH_LONG)
