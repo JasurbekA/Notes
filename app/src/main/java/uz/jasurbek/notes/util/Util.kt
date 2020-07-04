@@ -11,7 +11,7 @@ object Util {
 
     private const val DATE_FORMAT_PARSER = "yyyy/MM/dd HH:mm"
 
-    fun mapStringToStatus(string: String): Int =
+    fun mapStatusNameToStatus(string: String): Int =
         when (string.toLowerCase(Locale.ROOT)) {
             "active" -> NoteStatus.NOTES_STATUS_ACTIVE
             "completed" -> NoteStatus.NOTES_STATUS_COMPLETED
@@ -26,7 +26,7 @@ object Util {
             else -> "Active"
         }
 
-    fun mapCalendarStringDate(calendar: Calendar?): String = if (calendar == null) ""
+    fun mapCalendarToStringDate(calendar: Calendar?): String = if (calendar == null) ""
     else SimpleDateFormat(DATE_FORMAT_PARSER, Locale.US).format(Date(calendar.timeInMillis))
 
     private fun mapStringToCalendar(stringDate: String): Calendar {

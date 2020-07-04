@@ -11,6 +11,7 @@ import kotlinx.coroutines.*
 import uz.jasurbek.notes.data.model.Note
 import uz.jasurbek.notes.data.repos.NoteOperationRepo
 import uz.jasurbek.notes.ui.list.LoadingNoteStatus
+import java.util.*
 import javax.inject.Inject
 
 class NoteOperationsViewModel @Inject constructor(
@@ -81,7 +82,20 @@ class NoteOperationsViewModel @Inject constructor(
         val note = repo.getNote(noteID)
         _noteResponse.value = LoadingNoteStatus.OnSuccess(arrayListOf(note))
     }
+    fun mapStatusToString(status: Int) = repo.mapStatusToString(status)
 
+    fun getReminderDate(dueDate: String, hourOffset: Int) =
+        repo.getReminderDate(dueDate, hourOffset)
+
+    fun isReminderAllowed(dueDate: String, hourOffset: Int) =
+        repo.isReminderAllowed(dueDate, hourOffset)
+
+    fun mapCalendarToStringDate(calendar: Calendar?) = repo.mapCalendarToStringDate(calendar)
+
+    fun mapStatusNameToStatus(name: String) = repo.mapStatusNameToStatus(name)
+
+    fun calculateReminderDifference(dueDate: String, reminderDate: String) =
+        repo.calculateReminderDifference(dueDate, reminderDate)
 
 }
 

@@ -4,6 +4,7 @@ import androidx.lifecycle.LiveData
 import uz.jasurbek.notes.data.local.NoteDao
 import uz.jasurbek.notes.data.model.Note
 import uz.jasurbek.notes.data.model.NoteStatus
+import uz.jasurbek.notes.util.Util
 import javax.inject.Inject
 
 class NoteListRepo @Inject constructor(private val noteDao: NoteDao) {
@@ -15,4 +16,6 @@ class NoteListRepo @Inject constructor(private val noteDao: NoteDao) {
         if (status == NoteStatus.NOTES_STATUS_DEFAULT) getAllNotes()
         else filterNotes(status)
 
+
+    fun mapFilterOptionsToStatus(filter : String) = Util.mapFilterOptionsToStatus(filter)
 }

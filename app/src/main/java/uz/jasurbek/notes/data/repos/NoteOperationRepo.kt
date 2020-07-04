@@ -11,9 +11,11 @@ import android.os.Build
 import android.os.Environment
 import android.provider.MediaStore
 import androidx.fragment.app.FragmentActivity
+import kotlinx.android.synthetic.main.fragment_add_edit_note.*
 import uz.jasurbek.notes.data.Constants
 import uz.jasurbek.notes.data.local.NoteDao
 import uz.jasurbek.notes.data.model.Note
+import uz.jasurbek.notes.util.Util
 import java.io.File
 import java.io.FileOutputStream
 import java.io.IOException
@@ -33,6 +35,21 @@ class NoteOperationRepo @Inject constructor(
 
 
     /*Additional helper functions to make UI code cleaner*/
+
+    fun calculateReminderDifference(dueDate: String, reminderDate: String) =
+        Util.calculateReminderDifference(dueDate, reminderDate)
+
+    fun mapStatusNameToStatus(name: String) = Util.mapStatusNameToStatus(name)
+
+    fun mapCalendarToStringDate(calendar: Calendar?) = Util.mapCalendarToStringDate(calendar)
+
+    fun isReminderAllowed(dueDate: String, hourOffset: Int) =
+        Util.isReminderAllowed(dueDate, hourOffset)
+
+    fun getReminderDate(dueDate: String, hourOffset: Int) = Util.getReminderDate(dueDate, hourOffset)
+
+    fun mapStatusToString(status: Int) = Util.mapStatusToString(status)
+
     fun deleteImage(imagePath: String?) = imagePath?.let {
         val file = File(it)
         if (file.exists())

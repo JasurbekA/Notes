@@ -16,7 +16,6 @@ import uz.jasurbek.notes.data.model.Note
 import uz.jasurbek.notes.data.model.NoteStatus
 import uz.jasurbek.notes.extentions.navigate
 import uz.jasurbek.notes.extentions.showOptionsAlertDialog
-import uz.jasurbek.notes.util.Util
 import javax.inject.Inject
 
 class NotesListFragment : DaggerFragment() {
@@ -60,7 +59,7 @@ class NotesListFragment : DaggerFragment() {
 
     private fun filterNotesClicked() {
         showOptionsAlertDialog(noteFilterOptions, "Filter notes"){
-            loadNotesWithStatus = Util.mapFilterOptionsToStatus(it)
+            loadNotesWithStatus = viewModel.mapFilterOptionsToStatus(it)
             observeNotes(loadNotesWithStatus)
         }
     }

@@ -14,24 +14,10 @@ import javax.inject.Inject
 
 class NotesListViewModel @Inject constructor(private val noteRepo: NoteListRepo) : ViewModel() {
 
-    private val _noteResponse = MutableLiveData<LoadingNoteStatus>()
-    val noteResponse: LiveData<LoadingNoteStatus>
-        get() = _noteResponse
-
-
-    private val errorHandling = CoroutineExceptionHandler { _, _ ->
-        _noteResponse.value = LoadingNoteStatus.OnError("Error while loading notes")
-    }
 
     fun observeNotes(status: Int) = noteRepo.getNotes(status)
 
-    fun getNotes(status: Int) = viewModelScope.launch(errorHandling) {
-
-        _noteResponse.value = LoadingNoteStatus.OnLoading
-
-       _noteResponse.value = LoadingNoteStatus.OnLoading
-
-    }
+    fun mapFilterOptionsToStatus(filter : String) = noteRepo.mapFilterOptionsToStatus(filter)
 
 }
 

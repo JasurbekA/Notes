@@ -31,7 +31,6 @@ import uz.jasurbek.notes.data.Constants.reminderOptions
 import uz.jasurbek.notes.data.model.Note
 import uz.jasurbek.notes.extentions.*
 import uz.jasurbek.notes.ui.list.LoadingNoteStatus
-import uz.jasurbek.notes.util.Util
 import java.io.File
 import java.io.IOException
 import javax.inject.Inject
@@ -170,7 +169,7 @@ class NoteOperationsFragment : DaggerFragment() {
 
     private fun setupUI() {
         loadImage(currentNote.imagePath)
-        loadStatus(Util.mapStatusToString(currentNote.status))
+        loadStatus(viewModel.mapStatusToString(currentNote.status))
         loadTitle(currentNote.name)
         loadDescription(currentNote.description)
         loadDueDate(currentNote.dueDate)
@@ -217,7 +216,7 @@ class NoteOperationsFragment : DaggerFragment() {
     }
 
     private fun loadReminder(reminderDate: String?) = reminderDate?.let {
-        val difference = Util.calculateReminderDifference(operationNoteDueDate.text.toString(), it)
+        val difference = viewModel.calculateReminderDifference(operationNoteDueDate.text.toString(), it)
         val result = "(-$difference hours)"
         operationNoteReminder.text = result
     }
@@ -236,7 +235,7 @@ class NoteOperationsFragment : DaggerFragment() {
         val options = if (isNewNote()) noteAddStatusOptions else noteEditStatusOptions
         showOptionsAlertDialog(options, "Note status") {
             if (it == noteEditStatusOptions.last()) return@showOptionsAlertDialog
-            currentNote.status = Util.mapStringToStatus(it)
+            currentNote.status = viewModel.mapStatusNameToStatus(it)
             loadStatus(it)
         }
     }
@@ -254,7 +253,7 @@ class NoteOperationsFragment : DaggerFragment() {
     private fun dueDateClicked() =
         showDatePickerDialog { date ->
             showTimePickerDialog(date) {
-                currentNote.dueDate = Util.mapCalendarStringDate(it)
+                currentNote.dueDate = viewModel.mapCalendarToStringDate(it)
                 loadDueDate(currentNote.dueDate)
             }
         }
@@ -265,10 +264,10 @@ class NoteOperationsFragment : DaggerFragment() {
             return
         }
         showSingleChoiceDialog(reminderOptions, "Remind me") {
-            val isAllowed = Util.isReminderAllowed(operationNoteDueDate.text.toString(), it)
+            val isAllowed = viewModel.isReminderAllowed(operationNoteDueDate.text.toString(), it)
             if (isAllowed) {
                 currentNote.alarmDate =
-                    Util.getReminderDate(operationNoteDueDate.text.toString(), it)
+                    viewModel.getReminderDate(operationNoteDueDate.text.toString(), it)
                 loadReminder(currentNote.alarmDate)
             } else operationNoteDueDate.showSnackBar("Please try different offset")
         }
