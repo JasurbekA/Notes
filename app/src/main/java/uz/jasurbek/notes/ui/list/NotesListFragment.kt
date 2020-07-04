@@ -68,6 +68,7 @@ class NotesListFragment : DaggerFragment() {
         setupPageTitle()
         setupRV()
         observeNotes(loadNotesWithStatus)
+        observeNotesStatusTitle()
         setClickListeners()
     }
 
@@ -95,6 +96,11 @@ class NotesListFragment : DaggerFragment() {
         })
     }
 
+    private fun observeNotesStatusTitle() {
+        viewModel.filterText.observe(viewLifecycleOwner, Observer {
+            notesStatus.text = it
+        })
+    }
 
     private fun loadingNotesSuccess(notes: List<Note>) {
         changeViewVisibility(notes.isEmpty())

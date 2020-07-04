@@ -11,9 +11,6 @@ class AlarmReceiver : BroadcastReceiver() {
 
     override fun onReceive(context: Context, intent: Intent?) {
 
-
-        println("onReceive working")
-
         val notificationHelper = NotificationHelper(context)
         val notificationTitle =
             intent?.getStringExtra(Constants.NOTIFICATION_BUNDLE_KEY_TITLE) ?: "Note app"

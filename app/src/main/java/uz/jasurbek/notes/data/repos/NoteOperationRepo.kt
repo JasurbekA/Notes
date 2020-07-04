@@ -18,7 +18,6 @@ import uz.jasurbek.notes.alarm.AlarmReceiver
 import uz.jasurbek.notes.data.Constants
 import uz.jasurbek.notes.data.local.NoteDao
 import uz.jasurbek.notes.data.model.Note
-import uz.jasurbek.notes.util.SharedPrefManager
 import uz.jasurbek.notes.util.Util
 import java.io.File
 import java.io.FileOutputStream
@@ -29,8 +28,7 @@ import javax.inject.Inject
 
 
 class NoteOperationRepo @Inject constructor(
-    private val noteDao: NoteDao,
-    private val prefs: SharedPrefManager
+    private val noteDao: NoteDao
 ) {
     /*Note operations*/
     suspend fun deleteNote(note: Note) = noteDao.deleteNote(note)
@@ -62,10 +60,10 @@ class NoteOperationRepo @Inject constructor(
         val calendar = Util.mapStringToCalendar(it)
         val alarmManager = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
         val intent = Intent(context, AlarmReceiver::class.java)
-        intent.putExtra(Constants.NOTIFICATION_BUNDLE_KEY_TITLE, "Test tile")
-        intent.putExtra(Constants.NOTIFICATION_BUNDLE_KEY_BODY, "Test body")
+        intent.putExtra(Constants.NOTIFICATION_BUNDLE_KEY_TITLE, note.name)
+        intent.putExtra(Constants.NOTIFICATION_BUNDLE_KEY_BODY, note.description)
         val alarmRequestID = calculateAlarmIdForNote(note.id)
-        val pendingIntent = PendingIntent.getBroadcast(context, alarmRequestID, intent, 0)
+        val pendingIntent = PendingIntent.getBroadcast(context, alarmRequestID, intent, PendingIntent.FLAG_UPDATE_CURRENT)
         alarmManager.setExact(AlarmManager.RTC_WAKEUP, calendar.timeInMillis, pendingIntent)
     }
 
@@ -77,9 +75,6 @@ class NoteOperationRepo @Inject constructor(
         alarmManager.cancel(pendingIntent)
     }
 
-    private fun saveToPrefs(alarmRequestId: Int, note: Note) {
-
-    }
 
     private fun calculateAlarmIdForNote(noteID: String): Int {
         val cal = Util.mapStringToCalendar(noteID, Constants.DB_NOTE_ID_DATE_FORMAT)
@@ -100,7 +95,7 @@ class NoteOperationRepo @Inject constructor(
 
     fun saveImage(context: Context, imageUri: Uri, callback: (imagePath: String?) -> Unit) {
         val contentResolver = context.contentResolver
-        getBitmap(contentResolver, imageUri)?.let {
+        getImageBitmap(contentResolver, imageUri)?.let {
             saveImageIntoStorage(
                 contentResolver, it,
                 "${Date().time}.jpg", callback
@@ -108,7 +103,7 @@ class NoteOperationRepo @Inject constructor(
         }
     }
 
-    private fun getBitmap(contentResolver: ContentResolver, imageUri: Uri): Bitmap? =
+    private fun getImageBitmap(contentResolver: ContentResolver, imageUri: Uri): Bitmap? =
         try {
             if (Build.VERSION.SDK_INT < Build.VERSION_CODES.Q) {
                 @Suppress("deprecation")

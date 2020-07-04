@@ -23,7 +23,7 @@ data class Note(
     var dueDate: String? = null,
     var alarmDate: String? = null
 ) {
-    fun isItemsTheSame(other : Note): Boolean {
+    infix fun isSameWith(other : Note): Boolean {
         return status == other.status && imagePath == other.imagePath
                 && description == other.description && name == other.name
                 && alarmDate == other.alarmDate && dueDate == other.dueDate

@@ -62,8 +62,6 @@ class NoteOperationsViewModel @Inject constructor(
         }
 
 
-
-
     private fun deleteNote(note: Note) =
         CoroutineScope(Dispatchers.IO).launch { repo.deleteNote(note) }
 

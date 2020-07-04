@@ -39,5 +39,5 @@ object Constants {
     val reminderOptions =
         arrayOf("1 hour before", "2 hour before", "3 hour before", "4 hour before", "5 hour before")
 
-    val noteFilterOptions = arrayOf("All", "Active", "Completed", "Expired")
+    val noteFilterOptions = arrayOf("All", "Active", "Expired", "Completed")
 }

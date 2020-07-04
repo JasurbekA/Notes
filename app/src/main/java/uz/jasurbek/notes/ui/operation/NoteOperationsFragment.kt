@@ -46,6 +46,7 @@ class NoteOperationsFragment : DaggerFragment() {
     private lateinit var currentNote: Note
     private var attachedImageUri: Uri? = null
 
+    /*Fragment callbacks */
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setHasOptionsMenu(true)
@@ -107,22 +108,7 @@ class NoteOperationsFragment : DaggerFragment() {
     }
 
 
-    private fun initVariables() =
-        if (isNewNote()) {
-            currentNote = Note(name = "", description = "")
-            setupUI()
-        } else {
-            viewModel.getNote(arguments?.getString(Constants.BUNDLE_KEY_NOTE_OPERATION)!!)
-            observeNoteObject()
-        }
-
-
-    private fun setupPageTitle() {
-        val parentActivity = activity as? DaggerAppCompatActivity
-        if (isNewNote()) parentActivity?.supportActionBar?.title = "Add note"
-        else parentActivity?.supportActionBar?.title = "Edit note"
-    }
-
+    /*Observe*/
     private fun observeNoteObject() =
         viewModel.noteResponse.observe(viewLifecycleOwner, Observer {
             when (it) {
@@ -132,11 +118,17 @@ class NoteOperationsFragment : DaggerFragment() {
             }
         })
 
+    private fun observeSaveState() {
+        viewModel.noteSaveState.observe(viewLifecycleOwner, EventObserver {
+            when (it) {
+                is SaveNoteState.OnSuccess -> activity?.onBackPressed()
+                is SaveNoteState.OnError -> noteImageHolder?.showSnackBar(it.message)
+            }
+        })
 
-    private fun isNewNote() =
-        arguments?.getString(Constants.BUNDLE_KEY_NOTE_OPERATION).isNullOrBlank()
+    }
 
-
+    /*Operations*/
     private fun deleteCurrentNoteClicked() {
         viewModel.deleteCurrentNote(requireContext(), currentNote)
         activity?.onBackPressed()
@@ -154,16 +146,8 @@ class NoteOperationsFragment : DaggerFragment() {
         observeSaveState()
     }
 
-    private fun observeSaveState() {
-        viewModel.noteSaveState.observe(viewLifecycleOwner, EventObserver {
-            when (it) {
-                is SaveNoteState.OnSuccess -> activity?.onBackPressed()
-                is SaveNoteState.OnError -> noteImageHolder?.showSnackBar(it.message)
-            }
-        })
 
-    }
-
+    /*Helpers*/
     private fun setNoteRequiredFields() {
         currentNote.name = operationNoteTitle.text.toString()
         currentNote.description = operationNoteDesc.text.toString()
@@ -172,26 +156,39 @@ class NoteOperationsFragment : DaggerFragment() {
     private fun requiredFieldsNotFilled() =
         operationNoteTitle.text.isNullOrEmpty() || operationNoteDesc.text.isNullOrEmpty()
 
+    private fun isNewNote() =
+        arguments?.getString(Constants.BUNDLE_KEY_NOTE_OPERATION).isNullOrBlank()
 
+    private fun initVariables() =
+        if (isNewNote()) {
+            currentNote = Note(name = "", description = "")
+            setupUI()
+        } else {
+            viewModel.getNote(arguments?.getString(Constants.BUNDLE_KEY_NOTE_OPERATION)!!)
+            observeNoteObject()
+        }
+
+
+    private fun setClickListeners() {
+        operationNoteImage.setOnClickListener { selectImageClicked() }
+        operationNoteStatus.setOnClickListener { selectStatusClicked() }
+        operationMoreOptionView.setOnClickListener { selectMoreOptions() }
+        operationNoteDueDate.setOnClickListener { dueDateViewClicked() }
+        operationNoteReminder.setOnClickListener { reminderViewClicked() }
+    }
+
+
+    /*UI update*/
     private fun updateUI(note: Note) {
         currentNote = note
         setupUI()
     }
 
-    private fun setupUI() {
-        loadImage(currentNote.imagePath)
-        loadStatus(viewModel.mapStatusToString(currentNote.status))
-        loadTitle(currentNote.name)
-        loadDescription(currentNote.description)
-        loadDueDate(currentNote.dueDate)
-        loadReminder(currentNote.alarmDate)
-        setClickListeners()
-    }
 
-    private fun setClickListeners() {
-        operationNoteImage.setOnClickListener { selectImage() }
-        operationNoteStatus.setOnClickListener { selectStatus() }
-        operationMoreOptionView.setOnClickListener { selectMoreOptions() }
+    private fun setupPageTitle() {
+        val parentActivity = activity as? DaggerAppCompatActivity
+        if (isNewNote()) parentActivity?.supportActionBar?.title = "Add note"
+        else parentActivity?.supportActionBar?.title = "Edit note"
     }
 
     private fun loadImage(imagePath: String?) = imagePath?.let {
@@ -234,16 +231,61 @@ class NoteOperationsFragment : DaggerFragment() {
     }
 
 
+    private fun resetNoteAlarm() {
+        currentNote.alarmDate = null
+        operationNoteReminder.text = getString(R.string.no_reminder)
+    }
+
+    private fun configDueTimeAndUI(calendar: Calendar?) {
+        currentNote.dueDate = viewModel.mapCalendarToStringDate(calendar)
+        loadDueDate(currentNote.dueDate)
+        resetNoteAlarm()
+    }
+
+
+    /*Views click events*/
+
+    private fun setupUI() {
+        loadImage(currentNote.imagePath)
+        loadStatus(viewModel.mapStatusToString(currentNote.status))
+        loadTitle(currentNote.name)
+        loadDescription(currentNote.description)
+        loadDueDate(currentNote.dueDate)
+        loadReminder(currentNote.alarmDate)
+        setClickListeners()
+    }
+
     private fun selectMoreOptions() =
         showOptionsAlertDialog(moreOptions, "More options") {
             when (it) {
-                "Due date" -> dueDateClicked()
-                "Reminder" -> reminderClicked()
+                "Due date" -> alertDueDateClicked()
+                "Reminder" -> alertReminderClicked()
             }
         }
 
 
-    private fun selectStatus() {
+    private fun dueDateViewClicked() {
+        if (operationNoteDueDate.text == getString(R.string.no_due))
+            operationNoteDueDate.showSnackBar("Select due date using more option at bottom right corner")
+        else
+            showConfirmationDialog("Do you want to delete due date") {
+                currentNote.dueDate = null
+                operationNoteDueDate.text = getString(R.string.no_due)
+                resetNoteAlarm()
+            }
+    }
+
+    private fun reminderViewClicked() {
+        if (operationNoteReminder.text == getString(R.string.no_reminder))
+            operationNoteReminder.showSnackBar("Select reminder using more option at bottom right corner")
+        else
+            showConfirmationDialog("Do you want to delete reminder") {
+                resetNoteAlarm()
+            }
+    }
+
+
+    private fun selectStatusClicked() {
         val options = if (isNewNote()) noteAddStatusOptions else noteEditStatusOptions
         showOptionsAlertDialog(options, "Note status") {
             if (it == noteEditStatusOptions.last()) return@showOptionsAlertDialog
@@ -253,7 +295,7 @@ class NoteOperationsFragment : DaggerFragment() {
     }
 
 
-    private fun selectImage() =
+    private fun selectImageClicked() =
         showOptionsAlertDialog(choosingPhotoOptions, "Choose your note image") {
             when (it) {
                 "Take Photo" -> takeImageFromCameraClick()
@@ -262,7 +304,7 @@ class NoteOperationsFragment : DaggerFragment() {
         }
 
 
-    private fun dueDateClicked() =
+    private fun alertDueDateClicked() =
         showDatePickerDialog { date ->
             showTimePickerDialog(date) {
                 if (viewModel.isDueTimeAllowed(viewModel.mapCalendarToStringDate(it)))
@@ -271,14 +313,8 @@ class NoteOperationsFragment : DaggerFragment() {
             }
         }
 
-    private fun configDueTimeAndUI(calendar: Calendar?) {
-        currentNote.dueDate = viewModel.mapCalendarToStringDate(calendar)
-        loadDueDate(currentNote.dueDate)
-        currentNote.alarmDate = null
-        operationNoteReminder.text = getString(R.string.no_reminder)
-    }
 
-    private fun reminderClicked() {
+    private fun alertReminderClicked() {
         if (operationNoteDueDate.text == getString(R.string.no_due)) {
             toast("You cannot set reminder unless you select due date")
             return
@@ -294,6 +330,7 @@ class NoteOperationsFragment : DaggerFragment() {
     }
 
 
+    /*Image choosing*/
     private fun takeImageFromCameraClick() {
         if (hasPermissionGranted(Manifest.permission.CAMERA)) takePhotoFromCameraAction()
         else requestPermission(

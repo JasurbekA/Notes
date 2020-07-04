@@ -1,6 +1,5 @@
 package uz.jasurbek.notes.util
 
-import android.content.res.Resources
 import android.text.format.DateUtils
 import uz.jasurbek.notes.data.Constants.noteFilterOptions
 import uz.jasurbek.notes.data.model.NoteStatus

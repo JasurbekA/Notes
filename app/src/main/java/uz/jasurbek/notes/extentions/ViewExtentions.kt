@@ -1,5 +1,6 @@
 package uz.jasurbek.notes.extentions
 
+
 import android.app.AlertDialog
 import android.app.DatePickerDialog
 import android.app.TimePickerDialog
@@ -8,11 +9,11 @@ import android.os.Bundle
 import android.view.View
 import android.view.inputmethod.InputMethodManager
 import android.widget.Toast
-import androidx.core.content.ContextCompat.getSystemService
 import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.NavHostFragment
 import com.google.android.material.snackbar.Snackbar
 import java.util.*
+
 
 fun Fragment.navigate(
     destinationID: Int,
@@ -95,6 +96,16 @@ fun Fragment.showTimePickerDialog(chosenDate: Calendar?, callBack: (calendar: Ca
     ).show()
 }
 
+fun Fragment.showConfirmationDialog(
+    question: String,
+    positiveButtonClicked: () -> Unit
+): Unit = with(AlertDialog.Builder(context)) {
+    setTitle("Please confirm")
+    setMessage(question)
+    setIcon(android.R.drawable.ic_dialog_alert)
+    setPositiveButton(android.R.string.yes) { _, _ -> positiveButtonClicked() }
+    setNegativeButton(android.R.string.no, null).show()
+}
 
 fun View.showSnackBar(message: String) {
     Snackbar.make(this, message, Snackbar.LENGTH_LONG)
@@ -102,6 +113,7 @@ fun View.showSnackBar(message: String) {
             setAction("Ok") { this.dismiss() }.show()
         }
 }
+
 fun View?.hideSoftKeyboard() {
     val imm = this?.context?.getSystemService(INPUT_METHOD_SERVICE) as? InputMethodManager
     imm?.hideSoftInputFromWindow(this?.windowToken, 0)

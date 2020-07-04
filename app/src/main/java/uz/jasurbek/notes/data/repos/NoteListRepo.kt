@@ -16,6 +16,14 @@ class NoteListRepo @Inject constructor(private val noteDao: NoteDao) {
         if (status == NoteStatus.NOTES_STATUS_DEFAULT) getAllNotes()
         else filterNotes(status)
 
+    fun mapStatusToText(status: Int) : String =
+        when (status) {
+            NoteStatus.NOTES_STATUS_DEFAULT -> "All notes"
+            NoteStatus.NOTES_STATUS_COMPLETED -> "Completed notes"
+            NoteStatus.NOTES_STATUS_EXPIRED -> "Expired notes"
+            else -> "Active notes"
+        }
+
 
     fun mapFilterOptionsToStatus(filter : String) = Util.mapFilterOptionsToStatus(filter)
 }
