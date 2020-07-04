@@ -4,56 +4,81 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_margin="@dimen/_8sdp"
-    app:cardCornerRadius="@dimen/_4sdp"
-    app:cardElevation="@dimen/_3sdp">
+    android:layout_margin="@dimen/_4sdp"
+    app:cardCornerRadius="@dimen/_2sdp"
+    app:cardElevation="2dp">
 
 
-    <RelativeLayout
-        android:id="@+id/noteRowContainer"
+    <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:padding="@dimen/_5sdp">
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:padding="@dimen/_3sdp">
 
-        <androidx.appcompat.widget.AppCompatImageView
-            android:id="@+id/noteImage"
-            android:layout_width="match_parent"
-            android:layout_height="@dimen/_100sdp"
-            android:scaleType="centerCrop"
-            tools:src="@mipmap/ic_launcher" />
+        <com.google.android.material.card.MaterialCardView
+            android:id="@+id/cardImageHolder"
+            android:layout_width="@dimen/_40sdp"
+            android:layout_height="@dimen/_40sdp"
+            app:cardCornerRadius="@dimen/_20sdp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent">
+
+            <androidx.appcompat.widget.AppCompatImageView
+                android:id="@+id/noteImage"
+                android:layout_width="@dimen/_40sdp"
+                android:layout_height="@dimen/_40sdp"
+                android:padding="@dimen/_5sdp"
+                android:scaleType="centerCrop"
+                app:srcCompat="@drawable/ic_add_photo" />
+
+        </com.google.android.material.card.MaterialCardView>
 
         <TextView
             android:id="@+id/noteName"
-            android:layout_width="match_parent"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_below="@id/noteImage"
-            android:layout_toStartOf="@id/noteDueDate"
+            android:layout_marginStart="@dimen/_3sdp"
             android:ellipsize="end"
             android:gravity="start"
+            android:maxWidth="@dimen/_160sdp"
             android:maxLines="1"
             android:textColor="@android:color/black"
             android:textSize="20sp"
+            app:layout_constraintEnd_toStartOf="@id/noteDueDate"
+            app:layout_constraintStart_toEndOf="@id/cardImageHolder"
+            app:layout_constraintTop_toTopOf="parent"
             tools:text="Note title" />
 
         <TextView
             android:id="@+id/noteDueDate"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_below="@id/noteImage"
-            android:layout_alignParentEnd="true"
+            android:ellipsize="end"
+            android:maxLines="1"
             android:textColor="@android:color/secondary_text_dark"
-            android:textSize="20sp"
-            tools:text="24-06-2020" />
+            android:textSize="@dimen/_11sdp"
+            app:layout_constraintBottom_toBottomOf="@id/noteName"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            tools:text="24-06-2020 58 96" />
+
 
         <TextView
             android:id="@+id/noteDesc"
-            android:layout_width="match_parent"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_below="@id/noteName"
+            android:layout_marginStart="@dimen/_3sdp"
             android:ellipsize="end"
             android:maxLines="8"
+            android:paddingBottom="@dimen/_1sdp"
             android:textSize="15sp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@id/cardImageHolder"
+            app:layout_constraintTop_toBottomOf="@id/noteName"
             tools:text="Remind me every morning to wash my teeth at 8 o'clock" />
-    </RelativeLayout>
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
 
 </com.google.android.material.card.MaterialCardView>

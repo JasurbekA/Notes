@@ -1,5 +1,6 @@
 package uz.jasurbek.notes.util
 
+import android.content.res.Resources
 import android.text.format.DateUtils
 import uz.jasurbek.notes.data.model.NoteStatus
 import java.text.SimpleDateFormat
@@ -57,5 +58,10 @@ object Util {
         return difference / DateUtils.HOUR_IN_MILLIS
     }
 
+
+    fun dp2px(resources: Resources, dpValue: Float): Int {
+        val scale = resources.displayMetrics.density
+        return (dpValue * scale + 0.5f).toInt()
+    }
 
 }

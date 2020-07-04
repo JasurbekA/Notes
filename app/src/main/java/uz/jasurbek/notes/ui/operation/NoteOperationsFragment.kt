@@ -158,10 +158,10 @@ class NoteOperationsFragment : DaggerFragment() {
 
 
     private fun loadDefaultImage() {
-        val padding = (R.dimen._10sdp)
+        //val padding = 15
         operationNoteImage.apply {
-            setPadding(padding, padding, padding, padding)
-            load(R.drawable.ic_add_photo)
+            //setPadding(padding, padding, padding, padding)
+            setImageResource(R.drawable.ic_add_photo)
         }
     }
 

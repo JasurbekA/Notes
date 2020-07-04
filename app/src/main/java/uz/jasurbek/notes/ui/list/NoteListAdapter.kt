@@ -15,7 +15,7 @@ import uz.jasurbek.notes.data.model.Note
 import java.io.File
 
 
-class NoteListAdapter(private val itemClickEvent: ItemClickEvent?=null) :
+class NoteListAdapter(private val itemClickEvent: ItemClickEvent? = null) :
     ListAdapter<Note, NoteListAdapter.NoteViewHolder>(NoteDiffCallback()) {
 
     override fun onBindViewHolder(holder: NoteViewHolder, position: Int) =
@@ -36,22 +36,20 @@ class NoteListAdapter(private val itemClickEvent: ItemClickEvent?=null) :
             noteName.text = note.name
             noteDesc.text = note.description
 
-            val dueDateText = note.dueDate ?: "Not set"
+            val dueDateText = note.dueDate ?: "Not due date"
             noteDueDate.text = dueDateText
 
             loadImage(noteImage, note.imagePath)
         }
 
-        private fun loadImage(imageView: AppCompatImageView, imagePath: String?) {
-            if (imagePath == null) imageView.visibility = View.GONE
-            else {
-                val imageFile = File(imagePath)
-                if (imageFile.exists()) {
-                    imageView.visibility = View.VISIBLE
-                    imageView.load(imageFile)
-                } else imageView.visibility = View.GONE
+        private fun loadImage(imageView: AppCompatImageView, imagePath: String?) = imagePath?.let {
+            val imageFile = File(it)
+            if (imageFile.exists()) {
+                imageView.setPadding(0,0,0,0)
+                imageView.load(imageFile)
             }
         }
+
     }
 
 }

@@ -16,7 +16,6 @@ import uz.jasurbek.notes.data.Constants
 import uz.jasurbek.notes.data.model.Note
 import uz.jasurbek.notes.data.model.NoteStatus
 import uz.jasurbek.notes.extentions.navigate
-import uz.jasurbek.notes.extentions.toast
 import javax.inject.Inject
 
 class NotesListFragment : DaggerFragment() {
@@ -36,8 +35,8 @@ class NotesListFragment : DaggerFragment() {
     ): View? = inflater.inflate(R.layout.fragment_notes_list, container, false)
 
 
-    override fun onResume() {
-        super.onResume()
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
         setupUI()
     }
 
