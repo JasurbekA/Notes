@@ -1,9 +1,7 @@
 package uz.jasurbek.notes.ui.list
 
 import android.os.Bundle
-import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewGroup
+import android.view.*
 import androidx.core.os.bundleOf
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Observer
@@ -13,9 +11,12 @@ import dagger.android.support.DaggerFragment
 import kotlinx.android.synthetic.main.fragment_notes_list.*
 import uz.jasurbek.notes.R
 import uz.jasurbek.notes.data.Constants
+import uz.jasurbek.notes.data.Constants.noteFilterOptions
 import uz.jasurbek.notes.data.model.Note
 import uz.jasurbek.notes.data.model.NoteStatus
 import uz.jasurbek.notes.extentions.navigate
+import uz.jasurbek.notes.extentions.showOptionsAlertDialog
+import uz.jasurbek.notes.util.Util
 import javax.inject.Inject
 
 class NotesListFragment : DaggerFragment() {
@@ -44,6 +45,25 @@ class NotesListFragment : DaggerFragment() {
         setupUI()
     }
 
+    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
+        inflater.inflate(R.menu.note_list_menu, menu)
+        super.onCreateOptionsMenu(menu, inflater)
+    }
+
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        when (item.itemId) {
+            R.id.filterNotes -> filterNotesClicked()
+        }
+        return super.onOptionsItemSelected(item)
+    }
+
+    private fun filterNotesClicked() {
+        showOptionsAlertDialog(noteFilterOptions, "Filter notes"){
+            loadNotesWithStatus = Util.mapFilterOptionsToStatus(it)
+            observeNotes(loadNotesWithStatus)
+        }
+    }
 
     private fun setupUI() {
         setupPageTitle()

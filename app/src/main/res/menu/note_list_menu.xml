@@ -5,5 +5,5 @@
         app:showAsAction="always"
         android:icon="@drawable/ic_filter_list"
         android:title="@string/filter_notes"
-        android:id="@+id/saveNote"/>
+        android:id="@+id/filterNotes"/>
 </menu>
