@@ -1,8 +1,11 @@
 package uz.jasurbek.notes.data.repos
 
+import android.app.AlarmManager
+import android.app.PendingIntent
 import android.content.ContentResolver
 import android.content.ContentValues
 import android.content.Context
+import android.content.Intent
 import android.database.Cursor
 import android.graphics.Bitmap
 import android.graphics.ImageDecoder
@@ -10,8 +13,9 @@ import android.net.Uri
 import android.os.Build
 import android.os.Environment
 import android.provider.MediaStore
+import androidx.core.content.ContextCompat.getSystemService
 import androidx.fragment.app.FragmentActivity
-import kotlinx.android.synthetic.main.fragment_add_edit_note.*
+import uz.jasurbek.notes.alarm.AlarmReceiver
 import uz.jasurbek.notes.data.Constants
 import uz.jasurbek.notes.data.local.NoteDao
 import uz.jasurbek.notes.data.model.Note
@@ -46,10 +50,36 @@ class NoteOperationRepo @Inject constructor(
     fun isReminderAllowed(dueDate: String, hourOffset: Int) =
         Util.isReminderAllowed(dueDate, hourOffset)
 
-    fun getReminderDate(dueDate: String, hourOffset: Int) = Util.getReminderDate(dueDate, hourOffset)
+    fun getReminderDate(dueDate: String, hourOffset: Int) =
+        Util.getReminderDate(dueDate, hourOffset)
 
     fun mapStatusToString(status: Int) = Util.mapStatusToString(status)
+    /*End of helper staff*/
 
+
+    /*Start Alarm staff*/
+
+    private fun startAlarm(context: Context, calendar: Calendar, alarmRequestID: Int) {
+        val alarmManager =
+            context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
+        val intent = Intent(context, AlarmReceiver::class.java)
+        val pendingIntent = PendingIntent.getBroadcast(context, alarmRequestID, intent, 0)
+
+        alarmManager.setExact(AlarmManager.RTC_WAKEUP, calendar.timeInMillis, pendingIntent)
+    }
+
+    private fun cancelAlarm(context: Context, alarmRequestID: Int) {
+        val alarmManager =
+            context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
+        val intent = Intent(context, AlarmReceiver::class.java)
+        val pendingIntent = PendingIntent.getBroadcast(context, alarmRequestID, intent, 0)
+        alarmManager.cancel(pendingIntent)
+    }
+
+    /*End Alarm staff*/
+
+
+    /*Saving & creating Image staff*/
     fun deleteImage(imagePath: String?) = imagePath?.let {
         val file = File(it)
         if (file.exists())

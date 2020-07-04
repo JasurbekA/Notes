@@ -29,6 +29,7 @@
             </intent-filter>
         </activity>
 
+        <!--Taking image from camera-->
         <provider
             android:name="androidx.core.content.FileProvider"
             android:authorities="uz.jasurbek.notes.provider"
@@ -38,6 +39,9 @@
                 android:name="android.support.FILE_PROVIDER_PATHS"
                 android:resource="@xml/file_paths" />
         </provider>
+        <!--Alarm receiver-->
+        <receiver android:name=".alarm.AlarmReceiver" />
+
 
     </application>
 

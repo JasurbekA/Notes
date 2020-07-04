@@ -3,14 +3,15 @@ package uz.jasurbek.notes.data.model
 import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.PrimaryKey
-import java.text.DateFormat
+import uz.jasurbek.notes.data.Constants.DB_NOTE_ID_DATE_FORMAT
+import java.text.SimpleDateFormat
 import java.util.*
 
 @Entity(tableName = "notes")
 data class Note(
     @PrimaryKey (autoGenerate = false)
     @ColumnInfo(name = "id")
-    val id: String = DateFormat.getDateTimeInstance().format(Date()),
+    val id: String = SimpleDateFormat(DB_NOTE_ID_DATE_FORMAT, Locale.ROOT).format(Date()),
 
     var status : Int = NoteStatus.NOTES_STATUS_ACTIVE,
 

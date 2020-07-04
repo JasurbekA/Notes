@@ -70,7 +70,7 @@
             android:layout_height="wrap_content"
             android:layout_marginStart="@dimen/_3sdp"
             android:ellipsize="end"
-            android:maxLines="8"
+            android:maxLines="2"
             android:paddingBottom="@dimen/_1sdp"
             android:textSize="@dimen/_12sdp"
             app:layout_constraintEnd_toEndOf="parent"

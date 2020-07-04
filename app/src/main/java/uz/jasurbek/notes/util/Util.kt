@@ -29,9 +29,9 @@ object Util {
     fun mapCalendarToStringDate(calendar: Calendar?): String = if (calendar == null) ""
     else SimpleDateFormat(DATE_FORMAT_PARSER, Locale.US).format(Date(calendar.timeInMillis))
 
-    private fun mapStringToCalendar(stringDate: String): Calendar {
+    fun mapStringToCalendar(stringDate: String, dateFormat: String = DATE_FORMAT_PARSER): Calendar {
         val calendar = Calendar.getInstance()
-        val dateFormatter = SimpleDateFormat(DATE_FORMAT_PARSER, Locale.ROOT)
+        val dateFormatter = SimpleDateFormat(dateFormat, Locale.ROOT)
         calendar.time = dateFormatter.parse(stringDate) ?: Date()
         return calendar
     }

@@ -16,6 +16,9 @@ import uz.jasurbek.notes.data.model.Note
 import uz.jasurbek.notes.data.model.NoteStatus
 import uz.jasurbek.notes.extentions.navigate
 import uz.jasurbek.notes.extentions.showOptionsAlertDialog
+import uz.jasurbek.notes.util.Util
+import java.text.SimpleDateFormat
+import java.util.*
 import javax.inject.Inject
 
 class NotesListFragment : DaggerFragment() {
@@ -98,6 +101,12 @@ class NotesListFragment : DaggerFragment() {
 
     private fun loadingNotesSuccess(notes: List<Note>) {
         changeViewVisibility(notes.isEmpty())
+        notes.forEach {
+            val cal = Util.mapStringToCalendar(it.id, "MMM d, yyyy h:mm:ss a")
+            val stringVal = "${cal.get(Calendar.MONTH)}${cal.get(Calendar.DAY_OF_MONTH)}${cal.get(Calendar.HOUR_OF_DAY)}${cal.get(Calendar.MINUTE)}${cal.get(Calendar.SECOND)}"
+            println("test string Value $stringVal")
+            println("test int value ${stringVal.toInt()}")
+        }
         noteListAdapter.submitList(notes)
     }
 

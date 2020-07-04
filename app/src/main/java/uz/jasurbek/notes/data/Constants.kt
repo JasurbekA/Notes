@@ -5,6 +5,7 @@ import uz.jasurbek.notes.data.model.Note
 object Constants {
     const val DB_VERSION = 1
     const val DB_NAME = "notes_db"
+    const val DB_NOTE_ID_DATE_FORMAT = "MMM d, yyyy h:mm:ss a"
 
     const val IMAGE_FOLDER_NAME = "NotesImage"
 
