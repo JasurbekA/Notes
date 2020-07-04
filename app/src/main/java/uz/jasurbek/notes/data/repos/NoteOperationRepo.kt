@@ -11,6 +11,7 @@ import android.os.Build
 import android.os.Environment
 import android.provider.MediaStore
 import androidx.fragment.app.FragmentActivity
+import uz.jasurbek.notes.data.Constants
 import uz.jasurbek.notes.data.local.NoteDao
 import uz.jasurbek.notes.data.model.Note
 import java.io.File
@@ -32,22 +33,30 @@ class NoteOperationRepo @Inject constructor(
 
 
     /*Additional helper functions to make UI code cleaner*/
+    fun deleteImage(imagePath: String?) = imagePath?.let {
+        val file = File(it)
+        if (file.exists())
+            println("delete file ${file.delete()}")
+    }
+
     fun saveImage(context: Context, imageUri: Uri, callback: (imagePath: String?) -> Unit) {
         val contentResolver = context.contentResolver
         val imageFile = if (imageUri.path != null) File(imageUri.path!!) else null
         getBitmap(contentResolver, imageUri)?.let {
-            saveImageIntoStorage(contentResolver, it, imageFile?.name ?: "test", callback)
+            saveImageIntoStorage(
+                contentResolver,
+                it,
+                imageFile?.name ?: "${Date().time}.jpg",
+                callback
+            )
         }
     }
 
     private fun getBitmap(contentResolver: ContentResolver, imageUri: Uri): Bitmap? =
         try {
-            if (Build.VERSION.SDK_INT < 29) {
+            if (Build.VERSION.SDK_INT < Build.VERSION_CODES.Q) {
                 @Suppress("deprecation")
-                MediaStore.Images.Media.getBitmap(
-                    contentResolver,
-                    imageUri
-                )
+                MediaStore.Images.Media.getBitmap(contentResolver, imageUri)
             } else {
                 val source = ImageDecoder.createSource(contentResolver, imageUri)
                 ImageDecoder.decodeBitmap(source)
@@ -70,7 +79,10 @@ class NoteOperationRepo @Inject constructor(
                 val contentValues = ContentValues()
                 contentValues.put(MediaStore.MediaColumns.DISPLAY_NAME, name)
                 contentValues.put(MediaStore.MediaColumns.MIME_TYPE, "image/jpg")
-                contentValues.put(MediaStore.MediaColumns.RELATIVE_PATH, "DCIM/NoteImages")
+                contentValues.put(
+                    MediaStore.MediaColumns.RELATIVE_PATH,
+                    "DCIM/${Constants.IMAGE_FOLDER_NAME}"
+                )
                 contentResolver.insert(
                     MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
                     contentValues
@@ -78,36 +90,30 @@ class NoteOperationRepo @Inject constructor(
                     callback(getRealPathFromUri(contentResolver, it))
                     contentResolver.openOutputStream(it)
                 }
-
-
             } else {
                 @Suppress("deprecation")
                 val imageDir = Environment.getExternalStoragePublicDirectory(
                     Environment.DIRECTORY_DCIM
-                ).toString() + File.separator + "NoteImages"
+                ).toString() + File.separator + Constants.IMAGE_FOLDER_NAME
 
                 val file = File(imageDir)
                 if (!file.exists()) file.mkdir()
-                val image = File(imageDir, "$name.jpg")
+                val image = File(imageDir, name)
                 callback(image.absolutePath)
                 FileOutputStream(image)
             }
         } catch (ex: IOException) {
             null
         }
-        bitmap.compress(Bitmap.CompressFormat.PNG, 100, fos)
+        bitmap.compress(Bitmap.CompressFormat.JPEG, 20, fos)
         fos?.flush()
         fos?.close()
     }
 
-    private fun getRealPathFromUri(
-        contentResolver: ContentResolver,
-        contentUri: Uri
-    ): String? {
+    private fun getRealPathFromUri(contentResolver: ContentResolver, contentUri: Uri): String? {
         var cursor: Cursor? = null
         return try {
-            val projection =
-                arrayOf(MediaStore.Images.Media._ID)
+            val projection = arrayOf(MediaStore.Images.Media._ID)
             cursor = contentResolver.query(contentUri, projection, null, null, null)
             val columnIndex = cursor?.getColumnIndexOrThrow(MediaStore.Images.Media._ID)
             cursor?.moveToFirst()
@@ -121,13 +127,10 @@ class NoteOperationRepo @Inject constructor(
     fun createTemporaryImageFile(activity: FragmentActivity?): File {
         val timeStamp = SimpleDateFormat("yyyyMMdd_HHmmss", Locale.US).format(Date())
         val imageFileName = "JPEG" + timeStamp + "_"
-
         val publicDir = activity?.getExternalFilesDir(Environment.DIRECTORY_PICTURES)
         if (publicDir?.exists() == false) publicDir.mkdir()
-
         val storageDir = File(publicDir, "Notes Image")
         if (!storageDir.exists()) storageDir.mkdir()
-
         return createTempFile(imageFileName, ".jpg", storageDir)
     }
 

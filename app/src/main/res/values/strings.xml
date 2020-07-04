@@ -7,4 +7,5 @@
     <string name="delete_note">Delete note</string>
     <string name="no_saved_note_info">You did not save any notes yet\n Add \'+\' button to add one</string>
     <string name="no_reminder">(No reminder)</string>
+    <string name="filter_notes">Filter notes</string>
 </resources>

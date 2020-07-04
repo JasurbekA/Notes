@@ -27,6 +27,10 @@ class NotesListFragment : DaggerFragment() {
     private lateinit var noteListAdapter: NoteListAdapter
     private var loadNotesWithStatus: Int = NoteStatus.NOTES_STATUS_DEFAULT
 
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        setHasOptionsMenu(true)
+    }
 
     override fun onCreateView(
         inflater: LayoutInflater,

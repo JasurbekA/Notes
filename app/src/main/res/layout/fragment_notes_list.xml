@@ -6,71 +6,65 @@
     android:layout_height="match_parent">
 
 
-    <uz.jasurbek.notes.custom.ScrollChildSwipeRefreshLayout
-        android:id="@+id/refreshLayout"
+    <RelativeLayout
+        android:id="@+id/notesContainerLayout"
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="match_parent"
+        android:clickable="true"
+        android:focusable="true"
+        android:orientation="vertical">
 
-        <RelativeLayout
-            android:id="@+id/notesContainerLayout"
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/notesListRV"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:clickable="true"
-            android:focusable="true"
-            android:orientation="vertical">
+            android:layout_height="wrap_content"
+            app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager" />
 
+        <LinearLayout
+            android:id="@+id/noNotesLayout"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerInParent="true"
+            android:orientation="vertical"
+            android:visibility="gone">
 
-            <androidx.recyclerview.widget.RecyclerView
-                android:id="@+id/notesListRV"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager" />
+            <androidx.appcompat.widget.AppCompatImageView
+                android:id="@+id/noNotesIcon"
+                android:layout_width="@dimen/_70sdp"
+                android:layout_height="@dimen/_70sdp"
+                android:layout_gravity="center"
+                app:srcCompat="@drawable/ic_note"
+                app:tint="@color/colorPrimary" />
 
-            <LinearLayout
-                android:id="@+id/noNotesLayout"
+            <TextView
+                android:id="@+id/noNotesText"
                 android:layout_width="wrap_content"
-                android:visibility="gone"
                 android:layout_height="wrap_content"
-                android:layout_centerInParent="true"
-                android:orientation="vertical">
-
-                <androidx.appcompat.widget.AppCompatImageView
-                    android:id="@+id/noNotesIcon"
-                    app:srcCompat="@drawable/ic_note"
-                    app:tint="@color/colorPrimary"
-                    android:layout_width="@dimen/_70sdp"
-                    android:layout_height="@dimen/_70sdp"
-                    android:layout_gravity="center" />
-
-                <TextView
-                    android:text="@string/no_saved_note_info"
-                    android:id="@+id/noNotesText"
-                    android:layout_marginTop="@dimen/_15sdp"
-                    android:layout_marginStart="@dimen/_25sdp"
-                    android:layout_marginEnd="@dimen/_25sdp"
-                    android:ellipsize="end"
-                    android:maxLines="3"
-                    android:textAlignment="center"
-                    android:textSize="@dimen/_15sdp"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="center" />
-            </LinearLayout>
-        </RelativeLayout>
-
-    </uz.jasurbek.notes.custom.ScrollChildSwipeRefreshLayout>
+                android:layout_gravity="center"
+                android:layout_marginStart="@dimen/_25sdp"
+                android:layout_marginTop="@dimen/_15sdp"
+                android:layout_marginEnd="@dimen/_25sdp"
+                android:ellipsize="end"
+                android:maxLines="3"
+                android:text="@string/no_saved_note_info"
+                android:textAlignment="center"
+                android:textSize="@dimen/_15sdp" />
+        </LinearLayout>
+    </RelativeLayout>
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/addNoteFab"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_margin="@dimen/_10sdp"
-        app:fabSize="normal"
-        app:layout_anchor="@id/refreshLayout"
-        app:layout_anchorGravity="bottom|right|end"
-        app:srcCompat="@drawable/ic_add"
         app:backgroundTint="@color/colorPrimary"
+        app:fabSize="normal"
+        app:layout_anchor="@id/notesContainerLayout"
+        app:layout_anchorGravity="bottom|end"
+        app:srcCompat="@drawable/ic_add"
         app:tint="@android:color/white" />
+
 </androidx.coordinatorlayout.widget.CoordinatorLayout>
 
 

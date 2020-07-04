@@ -128,7 +128,7 @@
         android:padding="@dimen/_8sdp"
         android:text="@string/no_due"
         android:textColor="@android:color/black"
-        android:textSize="@dimen/_14sdp"
+        android:textSize="@dimen/_13sdp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent" />
 
@@ -139,7 +139,7 @@
         android:paddingTop="@dimen/_8sdp"
         android:paddingBottom="@dimen/_8sdp"
         android:text="@string/no_reminder"
-        android:textSize="@dimen/_14sdp"
+        android:textSize="@dimen/_13sdp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toStartOf="@id/operationMoreOptionView"
         app:layout_constraintStart_toEndOf="@id/operationNoteDueDate" />
