@@ -12,7 +12,6 @@ import uz.jasurbek.notes.data.model.Note
 import uz.jasurbek.notes.data.repos.NoteOperationRepo
 import uz.jasurbek.notes.ui.list.LoadingNoteStatus
 import uz.jasurbek.notes.util.Event
-import uz.jasurbek.notes.util.Util
 import java.util.*
 import javax.inject.Inject
 
@@ -47,7 +46,7 @@ class NoteOperationsViewModel @Inject constructor(
 
     /*
     * Launch execute sequentially, that is why is ok to put success after function call
-    * Eny exception occurred is handled by parent coroutine
+    * Any exception is handled by parent coroutine
     * */
     private fun updateNote(note: Note) =
         CoroutineScope(Dispatchers.IO).launch {

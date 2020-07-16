@@ -13,6 +13,7 @@ import android.net.Uri
 import android.os.Build
 import android.os.Environment
 import android.provider.MediaStore
+import androidx.annotation.RequiresApi
 import androidx.fragment.app.FragmentActivity
 import uz.jasurbek.notes.alarm.AlarmReceiver
 import uz.jasurbek.notes.data.Constants
@@ -63,7 +64,12 @@ class NoteOperationRepo @Inject constructor(
         intent.putExtra(Constants.NOTIFICATION_BUNDLE_KEY_TITLE, note.name)
         intent.putExtra(Constants.NOTIFICATION_BUNDLE_KEY_BODY, note.description)
         val alarmRequestID = calculateAlarmIdForNote(note.id)
-        val pendingIntent = PendingIntent.getBroadcast(context, alarmRequestID, intent, PendingIntent.FLAG_UPDATE_CURRENT)
+        val pendingIntent = PendingIntent.getBroadcast(
+            context,
+            alarmRequestID,
+            intent,
+            PendingIntent.FLAG_UPDATE_CURRENT
+        )
         alarmManager.setExact(AlarmManager.RTC_WAKEUP, calendar.timeInMillis, pendingIntent)
     }
 
@@ -123,40 +129,53 @@ class NoteOperationRepo @Inject constructor(
         name: String, callback: (imagePath: String?) -> Unit
     ) {
         val fos = try {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-
-                val contentValues = ContentValues()
-                contentValues.put(MediaStore.MediaColumns.DISPLAY_NAME, name)
-                contentValues.put(MediaStore.MediaColumns.MIME_TYPE, "image/jpg")
-                contentValues.put(
-                    MediaStore.MediaColumns.RELATIVE_PATH,
-                    "DCIM/${Constants.IMAGE_FOLDER_NAME}"
-                )
-                contentResolver.insert(
-                    MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
-                    contentValues
-                )?.let {
-                    callback(getRealPathFromUri(contentResolver, it))
-                    contentResolver.openOutputStream(it)
-                }
-            } else {
-                @Suppress("deprecation")
-                val imageDir = Environment.getExternalStoragePublicDirectory(
-                    Environment.DIRECTORY_DCIM
-                ).toString() + File.separator + Constants.IMAGE_FOLDER_NAME
-
-                val file = File(imageDir)
-                if (!file.exists()) file.mkdir()
-                val image = File(imageDir, name)
-                callback(image.absolutePath)
-                FileOutputStream(image)
-            }
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q)
+                getFosForAndroidQAndHigher(contentResolver, name, callback)
+            else getFosAndroidLessThanQ(name, callback)
         } catch (ex: IOException) {
             null
         }
         bitmap.compress(Bitmap.CompressFormat.JPEG, 20, fos)
         fos?.flush()
         fos?.close()
+    }
+
+    @RequiresApi(Build.VERSION_CODES.Q)
+    private fun getFosForAndroidQAndHigher(
+        contentResolver: ContentResolver,
+        name: String, callback: (imagePath: String?) -> Unit
+    ): FileOutputStream? {
+        val contentValues = ContentValues()
+        contentValues.put(MediaStore.MediaColumns.DISPLAY_NAME, name)
+        contentValues.put(MediaStore.MediaColumns.MIME_TYPE, "image/jpg")
+        contentValues.put(
+            MediaStore.MediaColumns.RELATIVE_PATH,
+            "DCIM/${Constants.IMAGE_FOLDER_NAME}"
+        )
+        val uri = contentResolver.insert(
+            MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
+            contentValues
+        )
+        return uri?.let {
+            callback(getRealPathFromUri(contentResolver, it))
+            contentResolver.openOutputStream(it)
+        } as? FileOutputStream
+    }
+
+
+    private fun getFosAndroidLessThanQ(
+        name: String,
+        callback: (imagePath: String?) -> Unit
+    ): FileOutputStream? {
+        @Suppress("deprecation")
+        val imageDir = Environment.getExternalStoragePublicDirectory(
+            Environment.DIRECTORY_DCIM
+        ).toString() + File.separator + Constants.IMAGE_FOLDER_NAME
+        val file = File(imageDir)
+        if (!file.exists()) file.mkdir()
+        val image = File(imageDir, name)
+        callback(image.absolutePath)
+        return FileOutputStream(image)
     }
 
     private fun getRealPathFromUri(contentResolver: ContentResolver, contentUri: Uri): String? {
