@@ -18,7 +18,7 @@ object Constants {
     //Prefs
     const val SHARED_PREF_NAME = "uz.jas.notes.prefs"
     const val SHARED_PREF_NOTIFICATION_TITLE_PREFIX = "n_title"
-    const val SHARED_PREF_NOTIFICATION_BODY_PREFIX = "n_title"
+    const val SHARED_PREF_NOTIFICATION_BODY_PREFIX = "n_body"
 
     //Saving Image
     const val IMAGE_FOLDER_NAME = "NotesImage"
